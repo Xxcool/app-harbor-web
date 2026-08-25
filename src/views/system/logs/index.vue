@@ -4,6 +4,10 @@ import { onMounted, ref } from 'vue';
 import { fetchLogs } from '@/service/api';
 
 const rows = ref<Record<string, any>[]>([]);
+const loading = ref(false);
+const page = ref(1);
+const pageSize = 20;
+const total = ref(0);
 const columns = [
   { title: '操作人', key: 'username' },
   { title: '动作', key: 'action' },
@@ -13,14 +17,33 @@ const columns = [
   { title: '时间', key: 'createdAt' }
 ];
 
-onMounted(async () => {
-  const result = await fetchLogs({ page: 1, size: 50 });
-  if (!result.error) rows.value = result.data.records;
-});
+async function load() {
+  loading.value = true;
+  const result = await fetchLogs({ page: page.value, size: pageSize });
+  if (!result.error) {
+    rows.value = result.data.records;
+    total.value = result.data.total;
+  }
+  loading.value = false;
+}
+
+onMounted(load);
 </script>
 
 <template>
   <NCard title="操作日志" :bordered="false">
-    <NDataTable :columns="columns" :data="rows" />
+    <NDataTable :columns="columns" :data="rows" :loading="loading" :row-key="row => row.id" />
+    <NPagination
+      v-if="total > pageSize"
+      v-model:page="page"
+      class="pager"
+      :item-count="total"
+      :page-size="pageSize"
+      @update:page="load"
+    />
   </NCard>
 </template>
+
+<style scoped>
+.pager { justify-content: flex-end; margin-top: 18px; }
+</style>
