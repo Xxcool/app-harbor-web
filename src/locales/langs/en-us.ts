@@ -1,6 +1,6 @@
 const local: App.I18n.Schema = {
   system: {
-    title: 'Android App Distribution',
+    title: 'Xia Distribution',
     updateTitle: 'System Version Update Notification',
     updateContent: 'A new version of the system has been detected. Do you want to refresh the page immediately?',
     updateConfirm: 'Refresh immediately',
@@ -229,7 +229,7 @@ const local: App.I18n.Schema = {
     404: 'Page Not Found',
     500: 'Server Error',
     'iframe-page': 'Iframe',
-    home: 'Dashboard',
+    home: 'Home',
     release: 'App Delivery',
     release_apps: 'Applications',
     'release_apps-detail': 'Application Detail',
