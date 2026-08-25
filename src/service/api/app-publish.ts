@@ -10,6 +10,8 @@ export function fetchDashboardSummary() { return request<DashboardSummary>({ url
 export function fetchApps(params: { page?: number; size?: number; keyword?: string }) { return request<PageResult<AndroidApp>>({ url: '/api/apps', params }); }
 export function fetchApp(id: number) { return request<AndroidApp>({ url: `/api/apps/${id}` }); }
 export function fetchReleases(appId: number, params: { page?: number; size?: number }) { return request<PageResult<AndroidRelease>>({ url: `/api/apps/${appId}/releases`, params }); }
+export function deleteRelease(id: number) { return request<void>({ url: `/api/releases/${id}`, method: 'delete' }); }
+export function deleteApp(id: number) { return request<void>({ url: `/api/apps/${id}`, method: 'delete' }); }
 export function uploadApk(file: File, metadata: ApkUploadMetadata, onUploadProgress?: (event: { loaded: number; total?: number }) => void) {
   const encodedMetadata = btoa(unescape(encodeURIComponent(JSON.stringify(metadata))));
   return request<AndroidRelease>({
