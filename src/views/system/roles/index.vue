@@ -1,6 +1,7 @@
 <!-- 系统角色列表页，角色数据量较小时在前端完成基础筛选。 -->
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue';
+import { computed, h, onMounted, reactive, ref } from 'vue';
+import { NTag } from 'naive-ui';
 import SearchCard from '@/components/business/search-card.vue';
 import { createRole, fetchRoles } from '@/service/api';
 const rows = ref<Record<string, any>[]>([]);
@@ -11,7 +12,16 @@ const form = reactive({ code: '', name: '', description: '' });
 const columns = [
   { title: '角色编码', key: 'code' },
   { title: '角色名称', key: 'name' },
-  { title: '说明', key: 'description' }
+  { title: '说明', key: 'description' },
+  {
+    title: '状态',
+    key: 'status',
+    width: 100,
+    render: (row: Record<string, any>) =>
+      h(NTag, { size: 'small', type: row.status === 'ENABLED' ? 'success' : 'warning' }, () =>
+        row.status === 'ENABLED' ? '启用' : '停用'
+      )
+  }
 ];
 async function load() {
   loading.value = true;
