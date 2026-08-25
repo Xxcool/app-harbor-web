@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** App Harbor 唯一登录入口，仅保留账号密码认证。 */
+/** 芽分发唯一登录入口，仅保留账号密码认证。 */
 import { computed, reactive } from 'vue';
 import { useAuthStore } from '@/store/modules/auth';
 import { useFormRules, useNaiveForm } from '@/hooks/common/form';

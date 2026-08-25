@@ -1,10 +1,10 @@
-# 虾分发
+# 芽分发
 
-基于 SoybeanAdmin 二次开发的安卓应用版本分发管理后台。平台在浏览器中解析 APK，根据安卓包名自动归入对应应用，并记录每次上传的版本、文件摘要、更新说明和下载次数。
+基于 SoybeanAdmin 二次开发的安卓内部测试包分发平台。平台在浏览器中解析 APK 和 uni-app 清单，根据安卓包名自动归入对应应用，并记录应用名称、图标、版本、文件摘要和下载次数。
 
 ## 在线地址
 
-- 管理后台：https://app-harbor-43g.pages.dev
+- 管理后台：https://sprout-release.pages.dev
 - Worker API：https://app-harbor-api.15623636530.workers.dev
 - 公开 APK Releases：https://github.com/Xxcool/app-harbor-releases
 
@@ -14,7 +14,7 @@
 
 - 首页：应用数、版本数、下载量和存储量
 - 应用管理：按包名自动建档、应用列表和版本历史
-- APK 发布：本地解析包名、版本号、SDK 信息和 SHA-256
+- APK 发布：本地解析应用名称、图标、包名、版本号、SDK 信息和 SHA-256
 - 版本下载：通过公开 GitHub Releases 分发 APK
 - 系统管理：用户、角色、菜单说明和操作日志
 - 更新检查：为 uni-app 等客户端提供最新版本检查接口

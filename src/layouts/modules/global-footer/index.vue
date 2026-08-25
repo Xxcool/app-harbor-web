@@ -7,7 +7,7 @@ defineOptions({
 <template>
   <DarkModeContainer class="h-full flex-center">
     <a href="https://github.com/soybeanjs/soybean-admin/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">
-      虾分发 · 版本发布与下载
+      芽分发 · 内部版本交付
     </a>
   </DarkModeContainer>
 </template>

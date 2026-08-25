@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 虾分发项目说明页：展示真实能力、线上架构和代码仓库。 */
+/** 芽分发项目说明页：展示真实能力、线上架构和代码仓库。 */
 const services = [
   { no: '01', name: '管理后台', value: 'Cloudflare Pages', note: 'Vue 3 · SoybeanAdmin' },
   { no: '02', name: '业务接口', value: 'Cloudflare Worker', note: 'Hono · WebCrypto' },
@@ -17,11 +17,11 @@ const repositories = [
 <template>
   <div class="about-page">
     <section class="masthead">
-      <div class="brand-mark">虾</div>
+      <div class="brand-mark">芽</div>
       <div class="mast-copy">
-        <p>ABOUT XIA DISTRIBUTION</p>
-        <h1>虾分发</h1>
-        <h2>让安卓版本有迹可循，<br />让每次交付清晰抵达。</h2>
+        <p>ABOUT SPROUT RELEASE</p>
+        <h1>芽分发</h1>
+        <h2>让每个测试版本萌芽，<br />让每次内部交付清晰抵达。</h2>
       </div>
       <div class="version"><span>当前版本</span><strong>1.0.0</strong><i>FREE EDITION</i></div>
     </section>
@@ -30,9 +30,9 @@ const repositories = [
       <article class="mission">
         <p class="section-label">WHAT IT DOES</p>
         <h3>一个 APK，自动找到它所属的应用。</h3>
-        <p>上传后自动读取应用名称、安卓包名和版本号。同一包名持续追加版本，新包名自动建立应用档案，并保留每次上传的摘要、更新说明和下载入口。</p>
+        <p>上传后自动读取应用名称、图标、安卓包名和版本号。同一包名持续追加版本，新包名自动建立应用档案，并保留文件摘要、版本历史和下载入口。</p>
         <div class="capabilities">
-          <span>包名自动归档</span><span>版本历史</span><span>公开下载</span><span>更新检查</span><span>角色权限</span><span>操作日志</span>
+          <span>包名自动归档</span><span>名称图标解析</span><span>版本历史</span><span>公开下载</span><span>角色权限</span><span>操作日志</span>
         </div>
       </article>
       <aside class="limit-card">

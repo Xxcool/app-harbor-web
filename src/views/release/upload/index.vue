@@ -14,8 +14,8 @@ interface ParsedApk {
 }
 
 interface ApkArchiveReader {
-  getEntries: (patterns: RegExp[], type?: 'buffer' | 'text') => Promise<Record<string, Uint8Array | string>>;
-  getEntry: (pattern: RegExp, type?: 'buffer' | 'text') => Promise<Uint8Array | string | undefined>;
+  getEntries: (patterns: RegExp[], type?: 'buffer' | 'text') => Promise<Record<string, ArrayBuffer | Uint8Array | string>>;
+  getEntry: (pattern: RegExp, type?: 'buffer' | 'text') => Promise<ArrayBuffer | Uint8Array | string | undefined>;
 }
 
 declare global {
@@ -66,15 +66,17 @@ function imageDataUrl(bytes: Uint8Array, path: string) {
 
 async function readUniAppInfo(reader: ApkArchiveReader) {
   const manifestPattern = /(?:^|\/)manifest\.json$/i;
-  const entries = await reader.getEntries([manifestPattern], 'text');
-  const text = Object.values(entries).find(value => typeof value === 'string') as string | undefined;
-  if (!text) return {};
+  const entries = await reader.getEntries([manifestPattern]);
+  const raw = Object.values(entries)[0];
+  if (!raw) return {};
+  const text = typeof raw === 'string' ? raw : new TextDecoder().decode(raw);
   const manifest = JSON.parse(text.replace(/^\uFEFF/, '')) as Record<string, unknown>;
   const name = typeof manifest.name === 'string' ? manifest.name.trim() : '';
   const iconPath = findAndroidIconPath(manifest);
   if (!iconPath) return { name };
   const icon = await reader.getEntry(new RegExp(`${escapeRegExp(iconPath.replace(/^\.\//, ''))}$`, 'i'));
-  return { name, icon: icon instanceof Uint8Array ? imageDataUrl(icon, iconPath) : undefined };
+  const bytes = icon instanceof ArrayBuffer ? new Uint8Array(icon) : icon;
+  return { name, icon: bytes instanceof Uint8Array ? imageDataUrl(bytes, iconPath) : undefined };
 }
 
 async function select(options: { file: { file: File | null } }) {
