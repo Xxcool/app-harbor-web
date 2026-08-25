@@ -9,7 +9,7 @@ interface ParsedApk {
   versionCode: number | string;
   versionName: string;
   usesSdk?: { minSdkVersion?: string | number; targetSdkVersion?: string | number };
-  application?: { label?: string };
+  application?: { label?: unknown };
 }
 
 declare global {
@@ -22,8 +22,6 @@ const maxBytes = 95 * 1024 * 1024;
 const { routerPush } = useRouterPush(false);
 const file = ref<File>();
 const parsed = ref<ParsedApk>();
-const notes = ref('');
-const mode = ref('NORMAL');
 const progress = ref(0);
 const parsing = ref(false);
 const uploading = ref(false);
@@ -59,13 +57,15 @@ async function submit() {
   if (!file.value || !parsed.value) return window.$message?.warning('请先选择 APK 文件');
   uploading.value = true;
   try {
+    const label = parsed.value.application?.label;
+    const appName = typeof label === 'string' && label.trim() ? label.trim() : parsed.value.package;
     const digest = await crypto.subtle.digest('SHA-256', await file.value.arrayBuffer());
     const sha256 = [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
     const result = await uploadApk(
       file.value,
       {
         packageName: parsed.value.package,
-        appName: parsed.value.application?.label || parsed.value.package,
+        appName,
         versionCode: Number(parsed.value.versionCode),
         versionName: parsed.value.versionName,
         filename: file.value.name,
@@ -73,15 +73,15 @@ async function submit() {
         sha256,
         minSdk: String(parsed.value.usesSdk?.minSdkVersion || ''),
         targetSdk: String(parsed.value.usesSdk?.targetSdkVersion || ''),
-        releaseNotes: notes.value,
-        updateMode: mode.value
+        releaseNotes: '',
+        updateMode: 'NORMAL'
       },
       event => {
         progress.value = event.total ? Math.round((event.loaded * 100) / event.total) : 0;
       }
     );
     if (!result.error) {
-      window.$notification?.success({ title: '上传成功', content: `${parsed.value.application?.label || parsed.value.package} ${result.data.versionName} 已按包名自动归档` });
+      window.$notification?.success({ title: '上传成功', content: `${appName} ${result.data.versionName} 已按包名自动归档` });
       routerPush(`/release/apps-detail/${result.data.appId}`);
     }
   } finally {
@@ -114,16 +114,6 @@ async function submit() {
         <div v-if="parsed" class="manifest"><code>{{ parsed.package }}</code><span>v{{ parsed.versionName }} ({{ parsed.versionCode }})</span></div>
         <NProgress v-if="uploading" type="line" :percentage="progress" />
       </div>
-      <NForm label-placement="top">
-        <NFormItem label="更新方式">
-          <NRadioGroup v-model:value="mode">
-            <NRadioButton value="NORMAL">普通更新</NRadioButton>
-            <NRadioButton value="FORCE">强制更新</NRadioButton>
-            <NRadioButton value="SILENT">静默更新</NRadioButton>
-          </NRadioGroup>
-        </NFormItem>
-        <NFormItem label="更新说明"><NInput v-model:value="notes" type="textarea" :rows="5" placeholder="说明本次版本的改动、注意事项或测试范围" /></NFormItem>
-      </NForm>
       <NButton block type="primary" size="large" :loading="parsing || uploading" :disabled="!file || !parsed" @click="submit">{{ parsing ? '正在读取应用信息' : uploading ? '正在上传并自动归档' : '上传 APK' }}</NButton>
     </NCard>
   </div>
