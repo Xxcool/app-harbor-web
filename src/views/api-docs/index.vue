@@ -28,6 +28,61 @@ const openApiUrl = `${serviceBaseUrl}/openapi.json`;
 </template>
 
 <style scoped>
-.docs-page{display:grid;gap:14px;min-height:calc(100vh - 120px)}.docs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:24px 28px;border:1px solid #dfe5dd;border-radius:18px;background:#fff}.docs-head p{margin:0 0 7px;color:#6f8376;font:700 10px ui-monospace,monospace;letter-spacing:.18em}.docs-head h2{margin:0 0 7px;color:#17211b;font-size:28px;letter-spacing:-.035em}.docs-head span{color:#708077}.swagger-shell{min-height:720px;overflow:hidden;border:1px solid #dfe5dd;border-radius:18px;background:#f4f7f2;box-shadow:0 16px 40px #17211b0d}.swagger-shell iframe{display:block;width:100%;height:calc(100vh - 270px);min-height:720px;border:0}@media(max-width:700px){.docs-head{align-items:flex-start;flex-direction:column;padding:20px}.swagger-shell iframe{height:760px}}
+.docs-page {
+  display: grid;
+  gap: 14px;
+  min-height: calc(100vh - 120px);
+}
+.docs-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+  border: 1px solid #dfe5dd;
+  border-radius: 18px;
+  background: #fff;
+}
+.docs-head p {
+  margin: 0 0 7px;
+  color: #6f8376;
+  font:
+    700 10px ui-monospace,
+    monospace;
+  letter-spacing: 0.18em;
+}
+.docs-head h2 {
+  margin: 0 0 7px;
+  color: #17211b;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+}
+.docs-head span {
+  color: #708077;
+}
+.swagger-shell {
+  min-height: 720px;
+  overflow: hidden;
+  border: 1px solid #dfe5dd;
+  border-radius: 18px;
+  background: #f4f7f2;
+  box-shadow: 0 16px 40px #17211b0d;
+}
+.swagger-shell iframe {
+  display: block;
+  width: 100%;
+  height: calc(100vh - 270px);
+  min-height: 720px;
+  border: 0;
+}
+@media (max-width: 700px) {
+  .docs-head {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+  .swagger-shell iframe {
+    height: 760px;
+  }
+}
 </style>
-

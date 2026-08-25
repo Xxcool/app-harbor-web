@@ -14,7 +14,10 @@ interface ParsedApk {
 }
 
 interface ApkArchiveReader {
-  getEntries: (patterns: RegExp[], type?: 'buffer' | 'text') => Promise<Record<string, ArrayBuffer | Uint8Array | string>>;
+  getEntries: (
+    patterns: RegExp[],
+    type?: 'buffer' | 'text'
+  ) => Promise<Record<string, ArrayBuffer | Uint8Array | string>>;
   getEntry: (pattern: RegExp, type?: 'buffer' | 'text') => Promise<ArrayBuffer | Uint8Array | string | undefined>;
 }
 
@@ -60,7 +63,11 @@ function imageDataUrl(bytes: Uint8Array, path: string) {
   for (let index = 0; index < bytes.length; index += 0x8000) {
     binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
   }
-  const mime = path.toLowerCase().endsWith('.webp') ? 'image/webp' : path.toLowerCase().endsWith('.jpg') || path.toLowerCase().endsWith('.jpeg') ? 'image/jpeg' : 'image/png';
+  const mime = path.toLowerCase().endsWith('.webp')
+    ? 'image/webp'
+    : path.toLowerCase().endsWith('.jpg') || path.toLowerCase().endsWith('.jpeg')
+      ? 'image/jpeg'
+      : 'image/png';
   return `data:${mime};base64,${btoa(binary)}`;
 }
 
@@ -120,7 +127,8 @@ async function submit() {
   uploading.value = true;
   try {
     const label = parsed.value.application?.label;
-    const appName = uniAppName.value || (typeof label === 'string' && label.trim() ? label.trim() : parsed.value.package);
+    const appName =
+      uniAppName.value || (typeof label === 'string' && label.trim() ? label.trim() : parsed.value.package);
     const digest = await crypto.subtle.digest('SHA-256', await file.value.arrayBuffer());
     const sha256 = [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
     const result = await uploadApk(
@@ -144,7 +152,10 @@ async function submit() {
       }
     );
     if (!result.error) {
-      window.$notification?.success({ title: '上传成功', content: `${appName} ${result.data.versionName} 已按包名自动归档` });
+      window.$notification?.success({
+        title: '上传成功',
+        content: `${appName} ${result.data.versionName} 已按包名自动归档`
+      });
       routerPush(`/release/apps-detail/${result.data.appId}`);
     }
   } finally {
@@ -157,15 +168,34 @@ async function submit() {
   <div class="upload-page">
     <section class="upload-intro">
       <p>APK INTAKE</p>
-      <h1>上传一次<br />自动归档。</h1>
+      <h1>
+        上传一次
+        <br />
+        自动归档。
+      </h1>
       <ol>
-        <li><b>01</b>自动读取应用名称与包名</li>
-        <li><b>02</b>同包名追加到已有应用</li>
-        <li><b>03</b>新包名自动创建应用并开放下载</li>
+        <li>
+          <b>01</b>
+          自动读取应用名称与包名
+        </li>
+        <li>
+          <b>02</b>
+          同包名追加到已有应用
+        </li>
+        <li>
+          <b>03</b>
+          新包名自动创建应用并开放下载
+        </li>
       </ol>
     </section>
     <NCard :bordered="false" class="upload-card">
-      <NUpload :default-upload="false" accept=".apk,application/vnd.android.package-archive" :max="1" directory-dnd @change="select">
+      <NUpload
+        :default-upload="false"
+        accept=".apk,application/vnd.android.package-archive"
+        :max="1"
+        directory-dnd
+        @change="select"
+      >
         <NUploadDragger>
           <div class="drop-icon"><SvgIcon icon="ph:android-logo-bold" /></div>
           <h3>拖入 uni-app 生成的 APK</h3>
@@ -173,15 +203,116 @@ async function submit() {
         </NUploadDragger>
       </NUpload>
       <div v-if="file" class="file-summary">
-        <div><strong>{{ file.name }}</strong><span>{{ fileSize }}</span></div>
-        <div v-if="parsed" class="manifest"><code>{{ parsed.package }}</code><span>v{{ parsed.versionName }} ({{ parsed.versionCode }})</span></div>
+        <div>
+          <strong>{{ file.name }}</strong>
+          <span>{{ fileSize }}</span>
+        </div>
+        <div v-if="parsed" class="manifest">
+          <code>{{ parsed.package }}</code>
+          <span>v{{ parsed.versionName }} ({{ parsed.versionCode }})</span>
+        </div>
         <NProgress v-if="uploading" type="line" :percentage="progress" />
       </div>
-      <NButton block type="primary" size="large" :loading="parsing || uploading" :disabled="!file || !parsed" @click="submit">{{ parsing ? '正在读取应用信息' : uploading ? '正在上传并自动归档' : '上传 APK' }}</NButton>
+      <NButton
+        block
+        type="primary"
+        size="large"
+        :loading="parsing || uploading"
+        :disabled="!file || !parsed"
+        @click="submit"
+      >
+        {{ parsing ? '正在读取应用信息' : uploading ? '正在上传并自动归档' : '上传 APK' }}
+      </NButton>
     </NCard>
   </div>
 </template>
 
 <style scoped>
-.upload-page{display:grid;grid-template-columns:minmax(280px,.75fr) minmax(420px,1.25fr);gap:18px;min-height:calc(100vh - 150px)}.upload-intro{padding:42px;border-radius:20px;background:#17211b;color:#f3f5f0}.upload-intro>p{color:#b8f34a;font:700 11px ui-monospace,monospace;letter-spacing:.18em}.upload-intro h1{margin:24px 0 60px;font-size:50px;line-height:1.02;letter-spacing:-.05em}.upload-intro ol{display:grid;gap:18px;padding:0;list-style:none;color:#b8c1bb}.upload-intro li{display:flex;gap:18px;border-top:1px solid #ffffff1f;padding-top:14px}.upload-intro b{color:#b8f34a;font-family:ui-monospace,monospace}.upload-card{padding:18px}:deep(.n-upload-dragger){padding:50px 20px;border:1px dashed #9daf9f;border-radius:16px;background:#f6f8f4}.drop-icon{font-size:46px;color:#4d6b58}.file-summary{margin:18px 0;padding:14px;border-radius:12px;background:#f1f5ef}.file-summary>div{display:flex;justify-content:space-between;gap:16px;margin-bottom:8px}.file-summary span{color:#718078}.manifest{padding-top:8px;border-top:1px solid #dbe5d8}.manifest code{overflow:hidden;text-overflow:ellipsis;color:#365342}@media(max-width:850px){.upload-page{grid-template-columns:1fr}.upload-intro h1{margin-bottom:30px}}
+.upload-page {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.75fr) minmax(420px, 1.25fr);
+  gap: 18px;
+  min-height: calc(100vh - 150px);
+}
+.upload-intro {
+  padding: 42px;
+  border-radius: 20px;
+  background: #17211b;
+  color: #f3f5f0;
+}
+.upload-intro > p {
+  color: #b8f34a;
+  font:
+    700 11px ui-monospace,
+    monospace;
+  letter-spacing: 0.18em;
+}
+.upload-intro h1 {
+  margin: 24px 0 60px;
+  font-size: 50px;
+  line-height: 1.02;
+  letter-spacing: -0.05em;
+}
+.upload-intro ol {
+  display: grid;
+  gap: 18px;
+  padding: 0;
+  list-style: none;
+  color: #b8c1bb;
+}
+.upload-intro li {
+  display: flex;
+  gap: 18px;
+  border-top: 1px solid #ffffff1f;
+  padding-top: 14px;
+}
+.upload-intro b {
+  color: #b8f34a;
+  font-family: ui-monospace, monospace;
+}
+.upload-card {
+  padding: 18px;
+}
+:deep(.n-upload-dragger) {
+  padding: 50px 20px;
+  border: 1px dashed #9daf9f;
+  border-radius: 16px;
+  background: #f6f8f4;
+}
+.drop-icon {
+  font-size: 46px;
+  color: #4d6b58;
+}
+.file-summary {
+  margin: 18px 0;
+  padding: 14px;
+  border-radius: 12px;
+  background: #f1f5ef;
+}
+.file-summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+.file-summary span {
+  color: #718078;
+}
+.manifest {
+  padding-top: 8px;
+  border-top: 1px solid #dbe5d8;
+}
+.manifest code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #365342;
+}
+@media (max-width: 850px) {
+  .upload-page {
+    grid-template-columns: 1fr;
+  }
+  .upload-intro h1 {
+    margin-bottom: 30px;
+  }
+}
 </style>

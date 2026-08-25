@@ -23,13 +23,22 @@ async function handleSubmit() {
 
 <template>
   <NForm ref="formRef" :model="model" :rules="rules" size="large" :show-label="false" @keyup.enter="handleSubmit">
-    <NFormItem path="userName"><NInput v-model:value="model.userName" :placeholder="$t('page.login.common.userNamePlaceholder')" /></NFormItem>
+    <NFormItem path="userName">
+      <NInput v-model:value="model.userName" :placeholder="$t('page.login.common.userNamePlaceholder')" />
+    </NFormItem>
     <NFormItem path="password">
-      <NInput v-model:value="model.password" type="password" show-password-on="click" :placeholder="$t('page.login.common.passwordPlaceholder')" />
+      <NInput
+        v-model:value="model.password"
+        type="password"
+        show-password-on="click"
+        :placeholder="$t('page.login.common.passwordPlaceholder')"
+      />
     </NFormItem>
     <NSpace vertical :size="24">
       <NCheckbox>{{ $t('page.login.pwdLogin.rememberMe') }}</NCheckbox>
-      <NButton type="primary" size="large" round block :loading="authStore.loginLoading" @click="handleSubmit">{{ $t('common.confirm') }}</NButton>
+      <NButton type="primary" size="large" round block :loading="authStore.loginLoading" @click="handleSubmit">
+        {{ $t('common.confirm') }}
+      </NButton>
     </NSpace>
   </NForm>
 </template>

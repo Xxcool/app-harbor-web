@@ -21,12 +21,12 @@
 
 ## 免费部署架构
 
-| 模块 | 服务 |
-| --- | --- |
-| 前端 | Cloudflare Pages，连接 GitHub `main` 自动构建 |
-| API | Cloudflare Workers |
-| 数据库 | Cloudflare D1 |
-| APK 文件 | 公开 GitHub Releases |
+| 模块     | 服务                                          |
+| -------- | --------------------------------------------- |
+| 前端     | Cloudflare Pages，连接 GitHub `main` 自动构建 |
+| API      | Cloudflare Workers                            |
+| 数据库   | Cloudflare D1                                 |
+| APK 文件 | 公开 GitHub Releases                          |
 
 Cloudflare 免费版单次请求上限为 100 MB，系统将单个 APK 限制为 95 MB。
 

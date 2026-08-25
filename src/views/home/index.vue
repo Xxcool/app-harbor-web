@@ -2,8 +2,266 @@
 import { computed, onMounted, ref } from 'vue';
 import { fetchApps, fetchDashboardSummary } from '@/service/api';
 import type { AndroidApp, DashboardSummary } from '@/service/api/app-publish';
-const summary = ref<DashboardSummary>({ appCount: 0, releaseCount: 0, downloadCount: 0, storageBytes: 0 }); const recentApps = ref<AndroidApp[]>([]); const loading = ref(false); const storage = computed(() => `${(summary.value.storageBytes / 1024 / 1024 / 1024).toFixed(2)} GB`);
-onMounted(async () => { loading.value = true; const [s, a] = await Promise.all([fetchDashboardSummary(), fetchApps({ page: 1, size: 6 })]); if (!s.error) summary.value = s.data; if (!a.error) recentApps.value = a.data.records; loading.value = false; });
+const summary = ref<DashboardSummary>({ appCount: 0, releaseCount: 0, downloadCount: 0, storageBytes: 0 });
+const recentApps = ref<AndroidApp[]>([]);
+const loading = ref(false);
+const storage = computed(() => `${(summary.value.storageBytes / 1024 / 1024 / 1024).toFixed(2)} GB`);
+onMounted(async () => {
+  loading.value = true;
+  const [s, a] = await Promise.all([fetchDashboardSummary(), fetchApps({ page: 1, size: 6 })]);
+  if (!s.error) summary.value = s.data;
+  if (!a.error) recentApps.value = a.data.records;
+  loading.value = false;
+});
 </script>
-<template><div class="harbor-dashboard"><section class="hero-panel"><div><p class="eyebrow">RELEASE CONTROL</p><h1>让每一个安卓版本<br><span>清晰抵达。</span></h1><p class="hero-copy">从 APK 解析、签名校验到版本发布，用一条可信链路管理团队的应用交付。</p></div><RouterLink to="/release/upload" class="upload-cta"><span>上传新版本</span><SvgIcon icon="ph:arrow-up-right-bold" /></RouterLink></section><section class="metric-grid" :class="{ loading }"><article><small>托管应用</small><strong>{{ summary.appCount }}</strong><i>APP INVENTORY</i></article><article><small>历史版本</small><strong>{{ summary.releaseCount }}</strong><i>RELEASE ARCHIVE</i></article><article><small>累计下载</small><strong>{{ summary.downloadCount }}</strong><i>TOTAL DELIVERY</i></article><article><small>存储占用</small><strong>{{ storage }}</strong><i>OBJECT STORAGE</i></article></section><section class="recent-panel"><header><div><p class="eyebrow">LATEST ACTIVITY</p><h2>最近更新的应用</h2></div><RouterLink to="/release/apps">查看全部 →</RouterLink></header><div v-if="recentApps.length" class="app-list"><RouterLink v-for="app in recentApps" :key="app.id" :to="`/release/apps-detail/${app.id}`" class="app-row"><div class="app-mark"><img v-if="app.iconUrl" :src="app.iconUrl" :alt="app.appName" /><template v-else>{{ app.appName.slice(0, 1).toUpperCase() }}</template></div><div class="app-copy"><strong>{{ app.appName }}</strong><code>{{ app.packageName }}</code></div><NTag :type="app.status === 'ENABLED' ? 'success' : 'default'" size="small" round>{{ app.status === 'ENABLED' ? '运行中' : '已停用' }}</NTag><span class="time">{{ new Date(app.updatedAt).toLocaleDateString() }}</span></RouterLink></div><NEmpty v-else description="上传第一个 APK，开始建立版本档案" /></section></div></template>
-<style scoped>.harbor-dashboard{--ink:#17211b;--acid:#b8f34a;color:var(--ink);display:grid;gap:18px}.hero-panel{position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:space-between;min-height:260px;padding:38px 42px;border-radius:20px;background:#17211b;color:#f4f6ef}.hero-panel:after{content:'';position:absolute;right:8%;top:-120px;width:330px;height:330px;border:1px solid #ffffff22;border-radius:50%;box-shadow:0 0 0 42px #ffffff08,0 0 0 84px #ffffff05}.eyebrow{margin:0 0 12px;font:700 11px/1.2 ui-monospace,monospace;letter-spacing:.18em;color:#789084}.hero-panel .eyebrow{color:var(--acid)}h1{margin:0;font-size:clamp(34px,4vw,58px);line-height:1.02;letter-spacing:-.045em}h1 span{color:var(--acid)}.hero-copy{max-width:540px;margin:22px 0 0;color:#b8c2ba;font-size:15px}.upload-cta{z-index:1;display:flex;align-items:center;gap:28px;padding:15px 18px 15px 22px;border-radius:999px;background:var(--acid);color:#17211b;font-weight:700}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.metric-grid article{display:flex;min-height:142px;flex-direction:column;padding:22px;border:1px solid #dfe5dd;border-radius:16px;background:#fff}.metric-grid small{color:#718078}.metric-grid strong{margin:auto 0 5px;font-size:30px;letter-spacing:-.04em}.metric-grid i{font:600 9px ui-monospace,monospace;color:#9ca8a0;letter-spacing:.14em}.recent-panel{padding:26px;border:1px solid #dfe5dd;border-radius:18px;background:#fff}.recent-panel header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.recent-panel h2{margin:0;font-size:20px}.recent-panel header a{color:#3e5948}.app-row{display:grid;grid-template-columns:44px 1fr auto 100px;align-items:center;gap:14px;padding:13px 6px;border-top:1px solid #edf0ec;color:inherit}.app-mark{display:grid;width:40px;height:40px;overflow:hidden;place-items:center;border-radius:11px;background:#e9f6cf;font-weight:800}.app-mark img{width:100%;height:100%;object-fit:cover}.app-copy{display:flex;flex-direction:column;gap:3px}.app-copy code{color:#839087;font-size:12px}.time{text-align:right;color:#839087;font-size:12px}@media(max-width:900px){.metric-grid{grid-template-columns:repeat(2,1fr)}.hero-panel{align-items:flex-start;flex-direction:column;gap:30px}.app-row{grid-template-columns:44px 1fr auto}.time{display:none}}@media(max-width:520px){.metric-grid{grid-template-columns:1fr}.hero-panel{padding:28px}.recent-panel{padding:18px}}</style>
+<template>
+  <div class="harbor-dashboard">
+    <section class="hero-panel">
+      <div>
+        <p class="eyebrow">RELEASE CONTROL</p>
+        <h1>
+          让每一个安卓版本
+          <br />
+          <span>清晰抵达。</span>
+        </h1>
+        <p class="hero-copy">从 APK 解析、签名校验到版本发布，用一条可信链路管理团队的应用交付。</p>
+      </div>
+      <RouterLink to="/release/upload" class="upload-cta">
+        <span>上传新版本</span>
+        <SvgIcon icon="ph:arrow-up-right-bold" />
+      </RouterLink>
+    </section>
+    <section class="metric-grid" :class="{ loading }">
+      <article>
+        <small>托管应用</small>
+        <strong>{{ summary.appCount }}</strong>
+        <i>APP INVENTORY</i>
+      </article>
+      <article>
+        <small>历史版本</small>
+        <strong>{{ summary.releaseCount }}</strong>
+        <i>RELEASE ARCHIVE</i>
+      </article>
+      <article>
+        <small>累计下载</small>
+        <strong>{{ summary.downloadCount }}</strong>
+        <i>TOTAL DELIVERY</i>
+      </article>
+      <article>
+        <small>存储占用</small>
+        <strong>{{ storage }}</strong>
+        <i>OBJECT STORAGE</i>
+      </article>
+    </section>
+    <section class="recent-panel">
+      <header>
+        <div>
+          <p class="eyebrow">LATEST ACTIVITY</p>
+          <h2>最近更新的应用</h2>
+        </div>
+        <RouterLink to="/release/apps">查看全部 →</RouterLink>
+      </header>
+      <div v-if="recentApps.length" class="app-list">
+        <RouterLink v-for="app in recentApps" :key="app.id" :to="`/release/apps-detail/${app.id}`" class="app-row">
+          <div class="app-mark">
+            <img v-if="app.iconUrl" :src="app.iconUrl" :alt="app.appName" />
+            <template v-else>{{ app.appName.slice(0, 1).toUpperCase() }}</template>
+          </div>
+          <div class="app-copy">
+            <strong>{{ app.appName }}</strong>
+            <code>{{ app.packageName }}</code>
+          </div>
+          <NTag :type="app.status === 'ENABLED' ? 'success' : 'default'" size="small" round>
+            {{ app.status === 'ENABLED' ? '运行中' : '已停用' }}
+          </NTag>
+          <span class="time">{{ new Date(app.updatedAt).toLocaleDateString() }}</span>
+        </RouterLink>
+      </div>
+      <NEmpty v-else description="上传第一个 APK，开始建立版本档案" />
+    </section>
+  </div>
+</template>
+<style scoped>
+.harbor-dashboard {
+  --ink: #17211b;
+  --acid: #b8f34a;
+  color: var(--ink);
+  display: grid;
+  gap: 18px;
+}
+.hero-panel {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  min-height: 260px;
+  padding: 38px 42px;
+  border-radius: 20px;
+  background: #17211b;
+  color: #f4f6ef;
+}
+.hero-panel:after {
+  content: '';
+  position: absolute;
+  right: 8%;
+  top: -120px;
+  width: 330px;
+  height: 330px;
+  border: 1px solid #ffffff22;
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 42px #ffffff08,
+    0 0 0 84px #ffffff05;
+}
+.eyebrow {
+  margin: 0 0 12px;
+  font:
+    700 11px/1.2 ui-monospace,
+    monospace;
+  letter-spacing: 0.18em;
+  color: #789084;
+}
+.hero-panel .eyebrow {
+  color: var(--acid);
+}
+h1 {
+  margin: 0;
+  font-size: clamp(34px, 4vw, 58px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+}
+h1 span {
+  color: var(--acid);
+}
+.hero-copy {
+  max-width: 540px;
+  margin: 22px 0 0;
+  color: #b8c2ba;
+  font-size: 15px;
+}
+.upload-cta {
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 15px 18px 15px 22px;
+  border-radius: 999px;
+  background: var(--acid);
+  color: #17211b;
+  font-weight: 700;
+}
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+.metric-grid article {
+  display: flex;
+  min-height: 142px;
+  flex-direction: column;
+  padding: 22px;
+  border: 1px solid #dfe5dd;
+  border-radius: 16px;
+  background: #fff;
+}
+.metric-grid small {
+  color: #718078;
+}
+.metric-grid strong {
+  margin: auto 0 5px;
+  font-size: 30px;
+  letter-spacing: -0.04em;
+}
+.metric-grid i {
+  font:
+    600 9px ui-monospace,
+    monospace;
+  color: #9ca8a0;
+  letter-spacing: 0.14em;
+}
+.recent-panel {
+  padding: 26px;
+  border: 1px solid #dfe5dd;
+  border-radius: 18px;
+  background: #fff;
+}
+.recent-panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.recent-panel h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.recent-panel header a {
+  color: #3e5948;
+}
+.app-row {
+  display: grid;
+  grid-template-columns: 44px 1fr auto 100px;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 6px;
+  border-top: 1px solid #edf0ec;
+  color: inherit;
+}
+.app-mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 11px;
+  background: #e9f6cf;
+  font-weight: 800;
+}
+.app-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.app-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.app-copy code {
+  color: #839087;
+  font-size: 12px;
+}
+.time {
+  text-align: right;
+  color: #839087;
+  font-size: 12px;
+}
+@media (max-width: 900px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .hero-panel {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 30px;
+  }
+  .app-row {
+    grid-template-columns: 44px 1fr auto;
+  }
+  .time {
+    display: none;
+  }
+}
+@media (max-width: 520px) {
+  .metric-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-panel {
+    padding: 28px;
+  }
+  .recent-panel {
+    padding: 18px;
+  }
+}
+</style>

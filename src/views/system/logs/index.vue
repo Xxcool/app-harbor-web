@@ -45,5 +45,8 @@ onMounted(load);
 </template>
 
 <style scoped>
-.pager { justify-content: flex-end; margin-top: 18px; }
+.pager {
+  justify-content: flex-end;
+  margin-top: 18px;
+}
 </style>

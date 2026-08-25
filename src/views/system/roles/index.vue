@@ -1,3 +1,40 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'; import { createRole, fetchRoles } from '@/service/api'; const rows=ref<Record<string,any>[]>([]);const visible=ref(false);const form=reactive({code:'',name:'',description:''});const columns=[{title:'角色编码',key:'code'},{title:'角色名称',key:'name'},{title:'说明',key:'description'}];async function load(){const r=await fetchRoles();if(!r.error)rows.value=r.data}async function submit(){if(!form.code||!form.name)return window.$message?.warning('请填写角色编码和名称');const r=await createRole(form);if(!r.error){visible.value=false;window.$message?.success('角色创建成功');await load()}}onMounted(load);
-</script><template><NCard title="角色管理" :bordered="false"><template #header-extra><NButton type="primary" @click="visible=true">新增角色</NButton></template><NDataTable :columns="columns" :data="rows"/><NModal v-model:show="visible" preset="card" title="新增角色" class="max-w-520px"><NForm label-placement="top"><NFormItem label="角色编码"><NInput v-model:value="form.code" placeholder="例如 RELEASE_AUDITOR"/></NFormItem><NFormItem label="角色名称"><NInput v-model:value="form.name"/></NFormItem><NFormItem label="说明"><NInput v-model:value="form.description" type="textarea"/></NFormItem></NForm><NButton block type="primary" @click="submit">创建角色</NButton></NModal></NCard></template>
+import { onMounted, reactive, ref } from 'vue';
+import { createRole, fetchRoles } from '@/service/api';
+const rows = ref<Record<string, any>[]>([]);
+const visible = ref(false);
+const form = reactive({ code: '', name: '', description: '' });
+const columns = [
+  { title: '角色编码', key: 'code' },
+  { title: '角色名称', key: 'name' },
+  { title: '说明', key: 'description' }
+];
+async function load() {
+  const r = await fetchRoles();
+  if (!r.error) rows.value = r.data;
+}
+async function submit() {
+  if (!form.code || !form.name) return window.$message?.warning('请填写角色编码和名称');
+  const r = await createRole(form);
+  if (!r.error) {
+    visible.value = false;
+    window.$message?.success('角色创建成功');
+    await load();
+  }
+}
+onMounted(load);
+</script>
+<template>
+  <NCard title="角色管理" :bordered="false">
+    <template #header-extra><NButton type="primary" @click="visible = true">新增角色</NButton></template>
+    <NDataTable :columns="columns" :data="rows" />
+    <NModal v-model:show="visible" preset="card" title="新增角色" class="max-w-520px">
+      <NForm label-placement="top">
+        <NFormItem label="角色编码"><NInput v-model:value="form.code" placeholder="例如 RELEASE_AUDITOR" /></NFormItem>
+        <NFormItem label="角色名称"><NInput v-model:value="form.name" /></NFormItem>
+        <NFormItem label="说明"><NInput v-model:value="form.description" type="textarea" /></NFormItem>
+      </NForm>
+      <NButton block type="primary" @click="submit">创建角色</NButton>
+    </NModal>
+  </NCard>
+</template>
