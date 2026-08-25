@@ -10,11 +10,17 @@ interface ParsedApk {
   versionName: string;
   usesSdk?: { minSdkVersion?: string | number; targetSdkVersion?: string | number };
   application?: { label?: unknown };
+  icon?: string | null;
+}
+
+interface ApkArchiveReader {
+  getEntries: (patterns: RegExp[], type?: 'buffer' | 'text') => Promise<Record<string, Uint8Array | string>>;
+  getEntry: (pattern: RegExp, type?: 'buffer' | 'text') => Promise<Uint8Array | string | undefined>;
 }
 
 declare global {
   interface Window {
-    AppInfoParser: new (file: File) => { parse: () => Promise<ParsedApk> };
+    AppInfoParser: new (file: File) => { parse: () => Promise<ParsedApk>; parser: ApkArchiveReader };
   }
 }
 
@@ -22,14 +28,60 @@ const maxBytes = 95 * 1024 * 1024;
 const { routerPush } = useRouterPush(false);
 const file = ref<File>();
 const parsed = ref<ParsedApk>();
+const uniAppName = ref('');
+const iconDataUrl = ref('');
 const progress = ref(0);
 const parsing = ref(false);
 const uploading = ref(false);
 const fileSize = computed(() => (file.value ? `${(file.value.size / 1024 / 1024).toFixed(1)} MB` : ''));
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function findAndroidIconPath(value: unknown): string | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  if (record.android && typeof record.android === 'object') {
+    const android = record.android as Record<string, unknown>;
+    for (const density of ['hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi', 'mdpi']) {
+      if (typeof android[density] === 'string') return android[density];
+    }
+  }
+  for (const child of Object.values(record)) {
+    const result = findAndroidIconPath(child);
+    if (result) return result;
+  }
+  return undefined;
+}
+
+function imageDataUrl(bytes: Uint8Array, path: string) {
+  let binary = '';
+  for (let index = 0; index < bytes.length; index += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  }
+  const mime = path.toLowerCase().endsWith('.webp') ? 'image/webp' : path.toLowerCase().endsWith('.jpg') || path.toLowerCase().endsWith('.jpeg') ? 'image/jpeg' : 'image/png';
+  return `data:${mime};base64,${btoa(binary)}`;
+}
+
+async function readUniAppInfo(reader: ApkArchiveReader) {
+  const manifestPattern = /(?:^|\/)manifest\.json$/i;
+  const entries = await reader.getEntries([manifestPattern], 'text');
+  const text = Object.values(entries).find(value => typeof value === 'string') as string | undefined;
+  if (!text) return {};
+  const manifest = JSON.parse(text.replace(/^\uFEFF/, '')) as Record<string, unknown>;
+  const name = typeof manifest.name === 'string' ? manifest.name.trim() : '';
+  const iconPath = findAndroidIconPath(manifest);
+  if (!iconPath) return { name };
+  const icon = await reader.getEntry(new RegExp(`${escapeRegExp(iconPath.replace(/^\.\//, ''))}$`, 'i'));
+  return { name, icon: icon instanceof Uint8Array ? imageDataUrl(icon, iconPath) : undefined };
+}
+
 async function select(options: { file: { file: File | null } }) {
   file.value = options.file.file || undefined;
   parsed.value = undefined;
+  uniAppName.value = '';
+  iconDataUrl.value = '';
   progress.value = 0;
   if (!file.value) return;
   if (!file.value.name.toLowerCase().endsWith('.apk')) {
@@ -44,7 +96,15 @@ async function select(options: { file: { file: File | null } }) {
   }
   parsing.value = true;
   try {
-    parsed.value = await new window.AppInfoParser(file.value).parse();
+    const parser = new window.AppInfoParser(file.value);
+    parsed.value = await parser.parse();
+    try {
+      const uniApp = await readUniAppInfo(parser.parser);
+      uniAppName.value = uniApp.name || '';
+      iconDataUrl.value = uniApp.icon || parsed.value.icon || '';
+    } catch {
+      iconDataUrl.value = parsed.value.icon || '';
+    }
   } catch {
     file.value = undefined;
     window.$message?.error('APK 清单解析失败，请确认文件完整且未损坏');
@@ -58,7 +118,7 @@ async function submit() {
   uploading.value = true;
   try {
     const label = parsed.value.application?.label;
-    const appName = typeof label === 'string' && label.trim() ? label.trim() : parsed.value.package;
+    const appName = uniAppName.value || (typeof label === 'string' && label.trim() ? label.trim() : parsed.value.package);
     const digest = await crypto.subtle.digest('SHA-256', await file.value.arrayBuffer());
     const sha256 = [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('');
     const result = await uploadApk(
@@ -66,6 +126,7 @@ async function submit() {
       {
         packageName: parsed.value.package,
         appName,
+        iconDataUrl: iconDataUrl.value || undefined,
         versionCode: Number(parsed.value.versionCode),
         versionName: parsed.value.versionName,
         filename: file.value.name,
