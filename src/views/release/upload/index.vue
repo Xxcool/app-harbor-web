@@ -56,7 +56,7 @@ async function select(options: { file: { file: File | null } }) {
 }
 
 async function submit() {
-  if (!file.value || !parsed.value) return window.$message?.warning('请先选择并解析 APK 文件');
+  if (!file.value || !parsed.value) return window.$message?.warning('请先选择 APK 文件');
   uploading.value = true;
   try {
     const digest = await crypto.subtle.digest('SHA-256', await file.value.arrayBuffer());
@@ -81,7 +81,7 @@ async function submit() {
       }
     );
     if (!result.error) {
-      window.$notification?.success({ title: '发布成功', content: `${result.data.versionName} 已归入对应应用` });
+      window.$notification?.success({ title: '上传成功', content: `${parsed.value.application?.label || parsed.value.package} ${result.data.versionName} 已按包名自动归档` });
       routerPush(`/release/apps-detail/${result.data.appId}`);
     }
   } finally {
@@ -94,11 +94,11 @@ async function submit() {
   <div class="upload-page">
     <section class="upload-intro">
       <p>APK INTAKE</p>
-      <h1>发布一个<br />可信版本。</h1>
+      <h1>上传一次<br />自动归档。</h1>
       <ol>
-        <li><b>01</b>本地解析 APK 清单</li>
-        <li><b>02</b>计算 SHA-256 摘要</li>
-        <li><b>03</b>按包名自动归档并开放下载</li>
+        <li><b>01</b>自动读取应用名称与包名</li>
+        <li><b>02</b>同包名追加到已有应用</li>
+        <li><b>03</b>新包名自动创建应用并开放下载</li>
       </ol>
     </section>
     <NCard :bordered="false" class="upload-card">
@@ -124,7 +124,7 @@ async function submit() {
         </NFormItem>
         <NFormItem label="更新说明"><NInput v-model:value="notes" type="textarea" :rows="5" placeholder="说明本次版本的改动、注意事项或测试范围" /></NFormItem>
       </NForm>
-      <NButton block type="primary" size="large" :loading="parsing || uploading" :disabled="!file || !parsed" @click="submit">{{ parsing ? '正在解析 APK' : '解析并发布 APK' }}</NButton>
+      <NButton block type="primary" size="large" :loading="parsing || uploading" :disabled="!file || !parsed" @click="submit">{{ parsing ? '正在读取应用信息' : uploading ? '正在上传并自动归档' : '上传 APK' }}</NButton>
     </NCard>
   </div>
 </template>

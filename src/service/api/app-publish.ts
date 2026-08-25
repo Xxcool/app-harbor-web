@@ -16,6 +16,7 @@ export function uploadApk(file: File, metadata: ApkUploadMetadata, onUploadProgr
     url: '/api/apps/upload',
     method: 'post',
     data: file,
+    timeout: 5 * 60 * 1000,
     headers: { 'Content-Type': 'application/vnd.android.package-archive', 'X-Apk-Metadata': encodedMetadata },
     onUploadProgress
   });
