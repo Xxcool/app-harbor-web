@@ -2,6 +2,7 @@
 <script setup lang="tsx">
 import { onMounted, reactive, ref } from 'vue';
 import { NButton, NTag } from 'naive-ui';
+import SearchCard from '@/components/business/search-card.vue';
 import { useRouterPush } from '@/hooks/common/router';
 import { fetchApps } from '@/service/api';
 import type { AndroidApp } from '@/service/api/app-publish';
@@ -45,42 +46,42 @@ function reset() {
 
 onMounted(load);
 </script>
+
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <NCard title="搜索" :bordered="false" size="small">
+    <SearchCard>
       <NForm :model="query" label-placement="left" label-width="auto">
-        <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="16">
-          <NFormItemGi span="24 s:12 m:8" label="应用名称">
+        <NGrid responsive="screen" item-responsive :x-gap="24" :y-gap="16">
+          <NFormItemGi span="24 s:12 m:6" label="应用名称">
             <NInput v-model:value="query.appName" clearable placeholder="请输入应用名称" @keyup.enter="search" />
           </NFormItemGi>
-          <NFormItemGi span="24 s:12 m:8" label="安卓包名">
+          <NFormItemGi span="24 s:12 m:6" label="安卓包名">
             <NInput v-model:value="query.packageName" clearable placeholder="请输入安卓包名" @keyup.enter="search" />
           </NFormItemGi>
-          <NFormItemGi span="24 s:12 m:8" label="应用状态">
+          <NFormItemGi span="24 s:12 m:6" label="应用状态">
             <NSelect v-model:value="query.status" clearable placeholder="请选择应用状态" :options="statusOptions" />
           </NFormItemGi>
-          <NFormItemGi span="24" class="flex-justify-end">
-            <NSpace>
-              <NButton @click="reset">重置</NButton>
-              <NButton type="primary" @click="search">搜索</NButton>
+          <NFormItemGi span="24 s:12 m:6">
+            <NSpace class="w-full" justify="end">
+              <NButton @click="reset">
+                <template #icon><icon-ic-round-refresh class="text-icon" /></template>
+                重置
+              </NButton>
+              <NButton type="primary" ghost @click="search">
+                <template #icon><icon-ic-round-search class="text-icon" /></template>
+                搜索
+              </NButton>
             </NSpace>
           </NFormItemGi>
         </NGrid>
       </NForm>
-    </NCard>
-    <NCard title="应用列表" :bordered="false" size="small" class="flex-1-hidden card-wrapper">
+    </SearchCard>
+    <NCard title="应用列表" :bordered="false" size="small" class="sm:flex-1-hidden card-wrapper">
       <div class="mb-16px flex justify-end gap-12px">
         <NButton @click="load">刷新</NButton>
         <NButton type="primary" @click="routerPush('/release/upload')">上传 APK</NButton>
       </div>
-      <NDataTable
-        class="flex-1-hidden"
-        flex-height
-        :columns="columns"
-        :data="rows"
-        :loading="loading"
-        :row-key="row => row.id"
-      />
+      <NDataTable size="small" :columns="columns" :data="rows" :loading="loading" :row-key="row => row.id" />
       <NPagination
         v-if="total > pageSize"
         v-model:page="page"
@@ -92,6 +93,7 @@ onMounted(load);
     </NCard>
   </div>
 </template>
+
 <style scoped>
 .pager {
   justify-content: flex-end;

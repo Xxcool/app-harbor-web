@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { NButton, NSpace } from 'naive-ui';
+import SearchCard from '@/components/business/search-card.vue';
 import { deleteApp, deleteRelease, fetchApp, fetchReleases } from '@/service/api';
 import type { AndroidApp, AndroidRelease } from '@/service/api/app-publish';
 import { useRouterPush } from '@/hooks/common/router';
@@ -86,22 +87,28 @@ onMounted(load);
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
-    <NCard title="搜索" :bordered="false" size="small">
+    <SearchCard>
       <NForm label-placement="left" label-width="auto">
-        <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="16">
+        <NGrid responsive="screen" item-responsive :x-gap="24" :y-gap="16">
           <NFormItemGi span="24 s:16 m:10" label="版本信息">
             <NInput v-model:value="keyword" clearable placeholder="请输入版本名称或版本号" @keyup.enter="search" />
           </NFormItemGi>
-          <NFormItemGi span="24 s:8 m:14" class="flex-justify-end">
-            <NSpace>
-              <NButton @click="reset">重置</NButton>
-              <NButton type="primary" @click="search">搜索</NButton>
+          <NFormItemGi span="24 s:8 m:14">
+            <NSpace class="w-full" justify="end">
+              <NButton @click="reset">
+                <template #icon><icon-ic-round-refresh class="text-icon" /></template>
+                重置
+              </NButton>
+              <NButton type="primary" ghost @click="search">
+                <template #icon><icon-ic-round-search class="text-icon" /></template>
+                搜索
+              </NButton>
             </NSpace>
           </NFormItemGi>
         </NGrid>
       </NForm>
-    </NCard>
-    <NCard title="版本档案" :bordered="false" size="small" class="flex-1-hidden card-wrapper">
+    </SearchCard>
+    <NCard title="版本档案" :bordered="false" size="small" class="sm:flex-1-hidden card-wrapper">
       <div class="app-hero mb-16px">
         <div class="app-icon">
           <img v-if="app?.iconUrl" :src="app.iconUrl" :alt="app.appName" />
@@ -127,14 +134,7 @@ onMounted(load);
           </NButton>
         </div>
       </div>
-      <NDataTable
-        class="flex-1-hidden"
-        flex-height
-        :columns="columns"
-        :data="releases"
-        :loading="loading"
-        :row-key="r => r.id"
-      />
+      <NDataTable size="small" :columns="columns" :data="releases" :loading="loading" :row-key="r => r.id" />
       <NPagination
         v-if="total > pageSize"
         v-model:page="page"

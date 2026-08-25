@@ -25,9 +25,12 @@ const menuTree = [
   { name: '关于', path: '/about', permission: 'about:view' }
 ];
 </script>
+
 <template>
-  <NCard title="菜单管理" :bordered="false">
-    <NAlert type="warning" class="mb-4">首期菜单由前端静态路由维护，后端角色控制管理接口访问。</NAlert>
-    <NTree block-line :data="menuTree" key-field="path" label-field="name" default-expand-all />
-  </NCard>
+  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
+    <NCard title="菜单列表" :bordered="false" size="small" class="sm:flex-1-hidden card-wrapper">
+      <NAlert type="warning" class="mb-16px">首期菜单由前端静态路由维护，后端角色控制管理接口访问。</NAlert>
+      <NTree block-line :data="menuTree" key-field="path" label-field="name" default-expand-all />
+    </NCard>
+  </div>
 </template>

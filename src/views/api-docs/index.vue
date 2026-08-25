@@ -14,8 +14,10 @@ const openApiUrl = `${serviceBaseUrl}/openapi.json`;
         <span>基于当前线上 Worker 自动提供的 OpenAPI 3.0 接口契约。</span>
       </div>
       <NSpace>
-        <NButton ghost tag="a" :href="openApiUrl" target="_blank">OpenAPI JSON</NButton>
-        <NButton ghost type="primary" tag="a" :href="swaggerUrl" target="_blank">新窗口打开</NButton>
+        <NButton ghost tag="a" :href="openApiUrl" target="_blank" rel="noopener noreferrer">OpenAPI JSON</NButton>
+        <NButton ghost type="primary" tag="a" :href="swaggerUrl" target="_blank" rel="noopener noreferrer">
+          新窗口打开
+        </NButton>
       </NSpace>
     </header>
     <NAlert type="info" :bordered="false">

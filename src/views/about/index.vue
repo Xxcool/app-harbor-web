@@ -74,7 +74,7 @@ const repositories = [
         <p>前端、Cloudflare 线上后端和 Java 自建服务器版本分别维护，避免部署方案互相混淆。</p>
       </div>
       <div class="repo-list">
-        <a v-for="repo in repositories" :key="repo.name" :href="repo.href" target="_blank" rel="noreferrer">
+        <a v-for="repo in repositories" :key="repo.name" :href="repo.href" target="_blank" rel="noopener noreferrer">
           <span>{{ repo.label }}</span>
           <strong>{{ repo.name }}</strong>
           <b>↗</b>

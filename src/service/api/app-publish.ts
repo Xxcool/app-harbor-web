@@ -112,6 +112,12 @@ export function fetchRoles() {
 export function createRole(data: { code: string; name: string; description?: string }) {
   return request<void>({ url: '/api/system/roles', method: 'post', data });
 }
-export function fetchLogs(params: { page?: number; size?: number }) {
+export function fetchLogs(params: {
+  page?: number;
+  size?: number;
+  keyword?: string;
+  action?: string;
+  resourceType?: string;
+}) {
   return request<PageResult<Record<string, any>>>({ url: '/api/system/logs', params });
 }

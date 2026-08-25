@@ -14,6 +14,7 @@ onMounted(async () => {
   loading.value = false;
 });
 </script>
+
 <template>
   <div class="harbor-dashboard">
     <section class="hero-panel">
@@ -81,6 +82,7 @@ onMounted(async () => {
     </section>
   </div>
 </template>
+
 <style scoped>
 .harbor-dashboard {
   --ink: #17211b;
