@@ -44,7 +44,7 @@ export const request = createFlatRequest(
 
       function logoutAndCleanup() {
         handleLogout();
-        window.removeEventListener('beforeunload', handleLogout);
+        window.removeEventListener('pagehide', handleLogout);
 
         request.state.errMsgStack = request.state.errMsgStack.filter(msg => msg !== response.data.msg);
       }
@@ -62,7 +62,7 @@ export const request = createFlatRequest(
         request.state.errMsgStack = [...(request.state.errMsgStack || []), response.data.msg];
 
         // prevent the user from refreshing the page
-        window.addEventListener('beforeunload', handleLogout);
+        window.addEventListener('pagehide', handleLogout);
 
         window.$dialog?.error({
           title: $t('common.error'),

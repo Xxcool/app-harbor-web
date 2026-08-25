@@ -232,7 +232,7 @@ export const useThemeStore = defineStore(SetupStoreId.Theme, () => {
   }
 
   // cache theme settings when page is closed or refreshed
-  useEventListener(window, 'beforeunload', () => {
+  useEventListener(window, 'pagehide', () => {
     cacheThemeSettings();
   });
 

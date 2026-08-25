@@ -353,7 +353,7 @@ export const useTabStore = defineStore(SetupStoreId.Tab, () => {
   }
 
   // cache tabs when page is closed or refreshed
-  useEventListener(window, 'beforeunload', () => {
+  useEventListener(window, 'pagehide', () => {
     cacheTabs();
   });
 

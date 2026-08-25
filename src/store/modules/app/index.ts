@@ -130,7 +130,7 @@ export const useAppStore = defineStore(SetupStoreId.App, () => {
   });
 
   // cache mixSiderFixed
-  useEventListener(window, 'beforeunload', () => {
+  useEventListener(window, 'pagehide', () => {
     localStg.set('mixSiderFixed', mixSiderFixed.value ? 'Y' : 'N');
   });
 
