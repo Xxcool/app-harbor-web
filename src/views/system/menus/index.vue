@@ -1,36 +1,42 @@
 <script setup lang="ts">
-const menuTree = [
-  { name: '首页', path: '/home', permission: 'dashboard:view' },
-  {
-    name: '应用分发',
-    path: '/release',
-    permission: 'release:view',
-    children: [
-      { name: '应用列表', path: '/release/apps' },
-      { name: '上传安装包', path: '/release/upload' }
-    ]
-  },
-  {
-    name: '系统管理',
-    path: '/system',
-    permission: 'system:view',
-    children: [
-      { name: '用户管理', path: '/system/users' },
-      { name: '角色管理', path: '/system/roles' },
-      { name: '菜单管理', path: '/system/menus' },
-      { name: '操作日志', path: '/system/logs' }
-    ]
-  },
-  { name: 'API 文档', path: '/api-docs', permission: 'api-docs:view' },
-  { name: '关于', path: '/about', permission: 'about:view' }
-];
+import { onMounted, ref } from 'vue';
+import type { TreeOption } from 'naive-ui';
+import { fetchSystemMenus } from '@/service/api';
+import type { SystemMenu } from '@/service/api/app-publish';
+import { $t } from '@/locales';
+
+const menuTree = ref<TreeOption[]>([]);
+const loading = ref(false);
+
+function toTree(menus: SystemMenu[]): TreeOption[] {
+  return menus.map(menu => ({
+    key: menu.id,
+    label: menu.meta.i18nKey ? $t(menu.meta.i18nKey as App.I18n.I18nKey) : menu.meta.title,
+    suffix: () => menu.path,
+    children: menu.children ? toTree(menu.children) : undefined
+  }));
+}
+
+async function load() {
+  loading.value = true;
+  const result = await fetchSystemMenus();
+  if (!result.error) menuTree.value = toTree(result.data);
+  loading.value = false;
+}
+
+onMounted(load);
 </script>
 
 <template>
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
     <NCard title="菜单列表" :bordered="false" size="small" class="sm:flex-1-hidden card-wrapper">
-      <NAlert type="warning" class="mb-16px">首期菜单由前端静态路由维护，后端角色控制管理接口访问。</NAlert>
-      <NTree block-line :data="menuTree" key-field="path" label-field="name" default-expand-all />
+      <template #header-extra>
+        <NButton size="small" :loading="loading" @click="load">
+          <template #icon><icon-mdi-refresh class="text-icon" /></template>
+          刷新
+        </NButton>
+      </template>
+      <NTree block-line :data="menuTree" default-expand-all />
     </NCard>
   </div>
 </template>

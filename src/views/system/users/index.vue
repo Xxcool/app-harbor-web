@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { h, onMounted, reactive, ref } from 'vue';
+import { NTag } from 'naive-ui';
 import SearchCard from '@/components/business/search-card.vue';
 import { createUser, fetchRoles, fetchUsers } from '@/service/api';
 const rows = ref<Record<string, any>[]>([]);
@@ -16,7 +17,15 @@ const columns = [
   { title: '用户名', key: 'username' },
   { title: '显示名称', key: 'displayName' },
   { title: '邮箱', key: 'email' },
-  { title: '状态', key: 'status' },
+  {
+    title: '状态',
+    key: 'status',
+    width: 100,
+    render: (row: Record<string, any>) =>
+      h(NTag, { size: 'small', type: row.status === 'ENABLED' ? 'success' : 'warning' }, () =>
+        row.status === 'ENABLED' ? '启用' : '停用'
+      )
+  },
   { title: '创建时间', key: 'createdAt' }
 ];
 async function load() {

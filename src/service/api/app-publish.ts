@@ -40,6 +40,13 @@ export interface DashboardSummary {
   downloadCount: number;
   storageBytes: number;
 }
+export interface SystemMenu {
+  id: string;
+  name: string;
+  path: string;
+  meta: { title: string; i18nKey?: string; icon?: string; hideInMenu?: boolean };
+  children?: SystemMenu[];
+}
 export interface ApkUploadMetadata {
   packageName: string;
   appName: string;
@@ -108,6 +115,9 @@ export function createUser(data: {
 }
 export function fetchRoles() {
   return request<Record<string, any>[]>({ url: '/api/system/roles' });
+}
+export function fetchSystemMenus() {
+  return request<SystemMenu[]>({ url: '/api/system/menus' });
 }
 export function createRole(data: { code: string; name: string; description?: string }) {
   return request<void>({ url: '/api/system/roles', method: 'post', data });

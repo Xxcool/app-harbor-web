@@ -1,6 +1,7 @@
 <!-- 系统操作日志页，用于审计上传、删除及管理操作。 -->
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue';
+import { h, onMounted, reactive, ref } from 'vue';
+import { NTag } from 'naive-ui';
 import SearchCard from '@/components/business/search-card.vue';
 import { fetchLogs } from '@/service/api';
 
@@ -18,10 +19,32 @@ const resourceOptions = [
   { label: '应用', value: 'APP' },
   { label: '版本', value: 'RELEASE' }
 ];
+const actionLabels: Record<string, { label: string; type: 'success' | 'error' | 'default' }> = {
+  UPLOAD: { label: '上传', type: 'success' },
+  DELETE: { label: '删除', type: 'error' }
+};
+const resourceLabels: Record<string, { label: string; type: 'info' | 'warning' | 'default' }> = {
+  APP: { label: '应用', type: 'info' },
+  RELEASE: { label: '版本', type: 'warning' }
+};
 const columns = [
   { title: '操作人', key: 'username' },
-  { title: '动作', key: 'action' },
-  { title: '资源', key: 'resourceType' },
+  {
+    title: '动作',
+    key: 'action',
+    render: (row: Record<string, any>) => {
+      const action = actionLabels[row.action] || { label: row.action, type: 'default' as const };
+      return h(NTag, { size: 'small', type: action.type }, () => action.label);
+    }
+  },
+  {
+    title: '资源',
+    key: 'resourceType',
+    render: (row: Record<string, any>) => {
+      const resource = resourceLabels[row.resourceType] || { label: row.resourceType, type: 'default' as const };
+      return h(NTag, { size: 'small', type: resource.type }, () => resource.label);
+    }
+  },
   { title: '详情', key: 'detail' },
   { title: 'IP', key: 'ip' },
   { title: '时间', key: 'createdAt' }
@@ -101,7 +124,7 @@ onMounted(load);
       </template>
       <NDataTable size="small" :columns="columns" :data="rows" :loading="loading" :row-key="row => row.id" />
       <NPagination
-        v-if="total > pageSize"
+        v-if="total > 0"
         v-model:page="page"
         class="pager"
         :item-count="total"
