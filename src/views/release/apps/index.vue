@@ -83,7 +83,7 @@ onMounted(load);
       </div>
       <NDataTable size="small" :columns="columns" :data="rows" :loading="loading" :row-key="row => row.id" />
       <NPagination
-        v-if="total > pageSize"
+        v-if="total > 0"
         v-model:page="page"
         class="pager"
         :item-count="total"
