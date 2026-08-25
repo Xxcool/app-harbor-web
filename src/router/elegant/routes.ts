@@ -47,6 +47,17 @@ export const generatedRoutes: GeneratedRoute[] = [
       title: 'about',
       i18nKey: 'route.about',
       icon: 'ph:info-bold',
+      order: 5
+    }
+  },
+  {
+    name: 'api-docs',
+    path: '/api-docs',
+    component: 'layout.base$view.api-docs',
+    meta: {
+      title: 'api-docs',
+      i18nKey: 'route.api-docs',
+      icon: 'ph:code-bold',
       order: 4
     }
   },
@@ -150,9 +161,7 @@ export const generatedRoutes: GeneratedRoute[] = [
         component: 'view.system_logs',
         meta: {
           title: 'system_logs',
-          i18nKey: 'route.system_logs',
-          icon: 'ph:list-magnifying-glass-bold',
-          order: 4
+          i18nKey: 'route.system_logs'
         }
       },
       {

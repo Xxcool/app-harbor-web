@@ -221,6 +221,7 @@ const local: App.I18n.Schema = {
   },
   route: {
     about: '关于',
+    'api-docs': 'API 文档',
     login: '登录',
     403: '无权限',
     404: '页面不存在',
