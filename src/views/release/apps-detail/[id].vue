@@ -17,6 +17,7 @@ const loading = ref(false);
 const page = ref(1);
 const pageSize = 20;
 const total = ref(0);
+const keyword = ref('');
 const showDeleteApp = ref(false);
 const deleteAppName = ref('');
 const deletingApp = ref(false);
@@ -33,13 +34,26 @@ const columns = [
 
 async function load() {
   loading.value = true;
-  const [a, r] = await Promise.all([fetchApp(id.value), fetchReleases(id.value, { page: page.value, size: pageSize })]);
+  const [a, r] = await Promise.all([
+    fetchApp(id.value),
+    fetchReleases(id.value, { page: page.value, size: pageSize, keyword: keyword.value || undefined })
+  ]);
   if (!a.error) app.value = a.data;
   if (!r.error) {
     releases.value = r.data.records;
     total.value = r.data.total;
   }
   loading.value = false;
+}
+
+function search() {
+  page.value = 1;
+  load();
+}
+
+function reset() {
+  keyword.value = '';
+  search();
 }
 
 function confirmDeleteRelease(release: AndroidRelease) {
@@ -71,48 +85,65 @@ onMounted(load);
 </script>
 
 <template>
-  <div class="app-detail-page">
-    <NSpace vertical :size="16">
-      <NCard :bordered="false">
-        <div class="app-hero">
-          <div class="app-icon">
-            <img v-if="app?.iconUrl" :src="app.iconUrl" :alt="app.appName" />
-            <template v-else>{{ app?.appName?.slice(0, 1) }}</template>
-          </div>
-          <div>
-            <p>ANDROID APPLICATION</p>
-            <h2>{{ app?.appName || '加载中' }}</h2>
-            <code>{{ app?.packageName }}</code>
-          </div>
-          <div class="hero-actions">
-            <NTag :type="app?.status === 'ENABLED' ? 'success' : 'default'" round>
-              {{ app?.status === 'ENABLED' ? '运行中' : '已停用' }}
-            </NTag>
-            <NButton v-if="canDelete" ghost type="error" @click="showDeleteApp = true">删除应用</NButton>
-            <NButton
-              ghost
-              type="primary"
-              tag="a"
-              :disabled="!app?.latestReleaseId"
-              :href="`${serviceBaseUrl}/download/apps/${app?.packageName}/latest`"
-            >
-              下载最新版
-            </NButton>
-          </div>
+  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
+    <NCard title="搜索" :bordered="false" size="small">
+      <NForm label-placement="left" label-width="auto">
+        <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="16">
+          <NFormItemGi span="24 s:16 m:10" label="版本信息">
+            <NInput v-model:value="keyword" clearable placeholder="请输入版本名称或版本号" @keyup.enter="search" />
+          </NFormItemGi>
+          <NFormItemGi span="24 s:8 m:14" class="flex-justify-end">
+            <NSpace>
+              <NButton @click="reset">重置</NButton>
+              <NButton type="primary" @click="search">搜索</NButton>
+            </NSpace>
+          </NFormItemGi>
+        </NGrid>
+      </NForm>
+    </NCard>
+    <NCard title="版本档案" :bordered="false" size="small" class="flex-1-hidden card-wrapper">
+      <div class="app-hero mb-16px">
+        <div class="app-icon">
+          <img v-if="app?.iconUrl" :src="app.iconUrl" :alt="app.appName" />
+          <template v-else>{{ app?.appName?.slice(0, 1) }}</template>
         </div>
-      </NCard>
-      <NCard title="版本档案" :bordered="false">
-        <NDataTable :columns="columns" :data="releases" :loading="loading" :row-key="r => r.id" />
-        <NPagination
-          v-if="total > pageSize"
-          v-model:page="page"
-          class="pager"
-          :item-count="total"
-          :page-size="pageSize"
-          @update:page="load"
-        />
-      </NCard>
-    </NSpace>
+        <div>
+          <h2>{{ app?.appName || '加载中' }}</h2>
+          <code>{{ app?.packageName }}</code>
+        </div>
+        <div class="hero-actions">
+          <NTag :type="app?.status === 'ENABLED' ? 'success' : 'default'" round>
+            {{ app?.status === 'ENABLED' ? '运行中' : '已停用' }}
+          </NTag>
+          <NButton v-if="canDelete" ghost type="error" @click="showDeleteApp = true">删除应用</NButton>
+          <NButton
+            ghost
+            type="primary"
+            tag="a"
+            :disabled="!app?.latestReleaseId"
+            :href="`${serviceBaseUrl}/download/apps/${app?.packageName}/latest`"
+          >
+            下载最新版
+          </NButton>
+        </div>
+      </div>
+      <NDataTable
+        class="flex-1-hidden"
+        flex-height
+        :columns="columns"
+        :data="releases"
+        :loading="loading"
+        :row-key="r => r.id"
+      />
+      <NPagination
+        v-if="total > pageSize"
+        v-model:page="page"
+        class="pager"
+        :item-count="total"
+        :page-size="pageSize"
+        @update:page="load"
+      />
+    </NCard>
     <NModal v-model:show="showDeleteApp" preset="card" title="删除应用" :style="{ width: '480px' }">
       <NSpace vertical :size="16">
         <NAlert type="error" title="此操作无法恢复">应用下的全部版本、APK 文件和应用记录都会被永久删除。</NAlert>
@@ -164,17 +195,9 @@ onMounted(load);
   height: 100%;
   object-fit: cover;
 }
-.app-hero p {
-  margin: 0;
-  color: #6f8376;
-  font:
-    700 10px ui-monospace,
-    monospace;
-  letter-spacing: 0.16em;
-}
 .app-hero h2 {
-  margin: 5px 0;
-  font-size: 26px;
+  margin: 0 0 5px;
+  font-size: 22px;
 }
 .app-hero code {
   color: #708077;

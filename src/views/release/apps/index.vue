@@ -1,67 +1,98 @@
+<!-- 应用分页列表页，按模板标准拆分查询区域与列表区域。 -->
 <script setup lang="tsx">
-import { onMounted, ref } from 'vue'; import { NButton, NTag } from 'naive-ui'; import { useRouterPush } from '@/hooks/common/router'; import { fetchApps } from '@/service/api'; import type { AndroidApp } from '@/service/api/app-publish';
-const { routerPush } = useRouterPush(false); const rows = ref<AndroidApp[]>([]); const loading = ref(false); const keyword = ref(''); const total = ref(0); const page = ref(1);
+import { onMounted, reactive, ref } from 'vue';
+import { NButton, NTag } from 'naive-ui';
+import { useRouterPush } from '@/hooks/common/router';
+import { fetchApps } from '@/service/api';
+import type { AndroidApp } from '@/service/api/app-publish';
+
+const { routerPush } = useRouterPush(false);
+const rows = ref<AndroidApp[]>([]);
+const loading = ref(false);
+const total = ref(0);
+const page = ref(1);
+const pageSize = 20;
+const query = reactive({ appName: '', packageName: '', status: null as string | null });
+const statusOptions = [{ label: '运行中', value: 'ENABLED' }, { label: '已停用', value: 'DISABLED' }];
 const columns = [{ title: '应用', key: 'appName', render: (row: AndroidApp) => <div class="app-cell"><div class="app-list-icon">{row.iconUrl ? <img src={row.iconUrl} alt={row.appName} /> : row.appName.slice(0, 1)}</div><div><b>{row.appName}</b><code>{row.packageName}</code></div></div> }, { title: '状态', key: 'status', width: 110, render: (row: AndroidApp) => <NTag type={row.status === 'ENABLED' ? 'success' : 'default'} round>{row.status === 'ENABLED' ? '运行中' : '已停用'}</NTag> }, { title: '最近更新', key: 'updatedAt', width: 180, render: (row: AndroidApp) => new Date(row.updatedAt).toLocaleString() }, { title: '', key: 'action', width: 110, render: (row: AndroidApp) => <NButton text type="primary" onClick={() => routerPush(`/release/apps-detail/${row.id}`)}>版本档案 →</NButton> }];
-async function load() { loading.value = true; const result = await fetchApps({ page: page.value, size: 20, keyword: keyword.value || undefined }); if (!result.error) { rows.value = result.data.records; total.value = result.data.total; } loading.value = false; } onMounted(load);
+async function load() {
+  loading.value = true;
+  const result = await fetchApps({
+    page: page.value,
+    size: pageSize,
+    appName: query.appName || undefined,
+    packageName: query.packageName || undefined,
+    status: query.status || undefined
+  });
+  if (!result.error) {
+    rows.value = result.data.records;
+    total.value = result.data.total;
+  }
+  loading.value = false;
+}
+
+function search() {
+  page.value = 1;
+  load();
+}
+
+function reset() {
+  query.appName = '';
+  query.packageName = '';
+  query.status = null;
+  search();
+}
+
+onMounted(load);
 </script>
 <template>
-  <NSpace vertical :size="16">
-    <NCard :bordered="false">
-      <div class="page-head">
-        <div>
-          <p>APP INVENTORY</p>
-          <h2>应用列表</h2>
-          <span>包名是应用的唯一身份，上传后自动归档。</span>
-        </div>
+  <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden lt-sm:overflow-auto">
+    <NCard title="搜索" :bordered="false" size="small">
+      <NForm :model="query" label-placement="left" label-width="auto">
+        <NGrid responsive="screen" item-responsive :x-gap="16" :y-gap="16">
+          <NFormItemGi span="24 s:12 m:8" label="应用名称">
+            <NInput v-model:value="query.appName" clearable placeholder="请输入应用名称" @keyup.enter="search" />
+          </NFormItemGi>
+          <NFormItemGi span="24 s:12 m:8" label="安卓包名">
+            <NInput v-model:value="query.packageName" clearable placeholder="请输入安卓包名" @keyup.enter="search" />
+          </NFormItemGi>
+          <NFormItemGi span="24 s:12 m:8" label="应用状态">
+            <NSelect v-model:value="query.status" clearable placeholder="请选择应用状态" :options="statusOptions" />
+          </NFormItemGi>
+          <NFormItemGi span="24" class="flex-justify-end">
+            <NSpace>
+              <NButton @click="reset">重置</NButton>
+              <NButton type="primary" @click="search">搜索</NButton>
+            </NSpace>
+          </NFormItemGi>
+        </NGrid>
+      </NForm>
+    </NCard>
+    <NCard title="应用列表" :bordered="false" size="small" class="flex-1-hidden card-wrapper">
+      <div class="mb-16px flex justify-end gap-12px">
+        <NButton @click="load">刷新</NButton>
         <NButton type="primary" @click="routerPush('/release/upload')">上传 APK</NButton>
       </div>
-    </NCard>
-    <NCard :bordered="false">
-      <div class="toolbar">
-        <NInput v-model:value="keyword" clearable placeholder="搜索应用名称或包名" @keyup.enter="load" />
-        <NButton @click="load">查询</NButton>
-      </div>
-      <NDataTable :columns="columns" :data="rows" :loading="loading" :row-key="row => row.id" />
+      <NDataTable
+        class="flex-1-hidden"
+        flex-height
+        :columns="columns"
+        :data="rows"
+        :loading="loading"
+        :row-key="row => row.id"
+      />
       <NPagination
-        v-if="total > 20"
+        v-if="total > pageSize"
         v-model:page="page"
         class="pager"
         :item-count="total"
-        :page-size="20"
+        :page-size="pageSize"
         @update:page="load"
       />
     </NCard>
-  </NSpace>
+  </div>
 </template>
 <style scoped>
-.page-head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-.page-head p {
-  margin: 0;
-  color: #6a8676;
-  font:
-    700 10px ui-monospace,
-    monospace;
-  letter-spacing: 0.16em;
-}
-.page-head h2 {
-  margin: 5px 0;
-  font-size: 26px;
-}
-.page-head span {
-  color: #7c8981;
-}
-.toolbar {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-.toolbar .n-input {
-  max-width: 360px;
-}
 .pager {
   justify-content: flex-end;
   margin-top: 18px;

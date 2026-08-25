@@ -58,13 +58,19 @@ export interface ApkUploadMetadata {
 export function fetchDashboardSummary() {
   return request<DashboardSummary>({ url: '/api/dashboard/summary' });
 }
-export function fetchApps(params: { page?: number; size?: number; keyword?: string }) {
+export function fetchApps(params: {
+  page?: number;
+  size?: number;
+  appName?: string;
+  packageName?: string;
+  status?: string;
+}) {
   return request<PageResult<AndroidApp>>({ url: '/api/apps', params });
 }
 export function fetchApp(id: number) {
   return request<AndroidApp>({ url: `/api/apps/${id}` });
 }
-export function fetchReleases(appId: number, params: { page?: number; size?: number }) {
+export function fetchReleases(appId: number, params: { page?: number; size?: number; keyword?: string }) {
   return request<PageResult<AndroidRelease>>({ url: `/api/apps/${appId}/releases`, params });
 }
 export function deleteRelease(id: number) {
