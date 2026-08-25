@@ -1,0 +1,3 @@
+<script setup lang="ts">
+const menuTree=[{name:'首页仪表盘',path:'/home',permission:'dashboard:view'},{name:'应用分发',path:'/release',permission:'release:view',children:[{name:'应用列表',path:'/release/apps'},{name:'上传安装包',path:'/release/upload'}]},{name:'系统管理',path:'/system',permission:'system:view',children:[{name:'用户管理',path:'/system/users'},{name:'角色管理',path:'/system/roles'},{name:'菜单管理',path:'/system/menus'},{name:'操作日志',path:'/system/logs'}]}];
+</script><template><NCard title="菜单管理" :bordered="false"><NAlert type="warning" class="mb-4">首期菜单由前端静态路由维护，后端角色控制管理接口访问。</NAlert><NTree block-line :data="menuTree" key-field="path" label-field="name" default-expand-all/></NCard></template>
