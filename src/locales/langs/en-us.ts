@@ -224,6 +224,7 @@ const local: App.I18n.Schema = {
     }
   },
   route: {
+    about: 'About',
     login: 'Login',
     403: 'No Permission',
     404: 'Page Not Found',
