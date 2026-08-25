@@ -74,7 +74,7 @@ export const useAppStore = defineStore(SetupStoreId.App, () => {
 
     const documentTitle = i18nKey ? $t(i18nKey) : title;
 
-    useTitle(documentTitle);
+    useTitle(documentTitle ? `${documentTitle} - ${import.meta.env.VITE_APP_TITLE}` : import.meta.env.VITE_APP_TITLE);
   }
 
   function init() {
