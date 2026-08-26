@@ -44,7 +44,7 @@ export interface SystemMenu {
   id: string;
   name: string;
   path: string;
-  meta: { title: string; i18nKey?: string; icon?: string; hideInMenu?: boolean };
+  meta: { title: string; i18nKey?: string; icon?: string; hideInMenu?: boolean; order?: number };
   children?: SystemMenu[];
 }
 export interface ApkUploadMetadata {
