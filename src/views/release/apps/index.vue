@@ -12,7 +12,7 @@ const rows = ref<AndroidApp[]>([]);
 const loading = ref(false);
 const total = ref(0);
 const page = ref(1);
-const pageSize = 20;
+const pageSize = ref(20);
 const query = reactive({ appName: '', packageName: '', status: null as string | null });
 const statusOptions = [{ label: '运行中', value: 'ENABLED' }, { label: '已停用', value: 'DISABLED' }];
 const columns = [{ title: '应用', key: 'appName', render: (row: AndroidApp) => <div class="app-cell"><div class="app-list-icon">{row.iconUrl ? <img src={row.iconUrl} alt={row.appName} /> : row.appName.slice(0, 1)}</div><div><b>{row.appName}</b><code>{row.packageName}</code></div></div> }, { title: '状态', key: 'status', width: 110, render: (row: AndroidApp) => <NTag type={row.status === 'ENABLED' ? 'success' : 'default'} round>{row.status === 'ENABLED' ? '运行中' : '已停用'}</NTag> }, { title: '最近更新', key: 'updatedAt', width: 180, render: (row: AndroidApp) => new Date(row.updatedAt).toLocaleString() }, { title: '', key: 'action', width: 110, render: (row: AndroidApp) => <NButton text type="primary" onClick={() => routerPush(`/release/apps-detail/${row.id}`)}>版本档案 →</NButton> }];
@@ -20,7 +20,7 @@ async function load() {
   loading.value = true;
   const result = await fetchApps({
     page: page.value,
-    size: pageSize,
+    size: pageSize.value,
     appName: query.appName || undefined,
     packageName: query.packageName || undefined,
     status: query.status || undefined
@@ -43,6 +43,7 @@ function reset() {
   query.status = null;
   search();
 }
+function changePageSize(size: number) { pageSize.value = size; page.value = 1; load(); }
 
 onMounted(load);
 </script>
@@ -88,7 +89,11 @@ onMounted(load);
         class="pager"
         :item-count="total"
         :page-size="pageSize"
+        :prefix="() => `共 ${total} 条`"
+        :page-sizes="[10, 20, 30, 50]"
+        show-size-picker
         @update:page="load"
+        @update:page-size="changePageSize"
       />
     </NCard>
   </div>

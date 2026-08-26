@@ -16,7 +16,7 @@ const app = ref<AndroidApp>();
 const releases = ref<AndroidRelease[]>([]);
 const loading = ref(false);
 const page = ref(1);
-const pageSize = 20;
+const pageSize = ref(20);
 const total = ref(0);
 const keyword = ref('');
 const showDeleteApp = ref(false);
@@ -37,7 +37,7 @@ async function load() {
   loading.value = true;
   const [a, r] = await Promise.all([
     fetchApp(id.value),
-    fetchReleases(id.value, { page: page.value, size: pageSize, keyword: keyword.value || undefined })
+    fetchReleases(id.value, { page: page.value, size: pageSize.value, keyword: keyword.value || undefined })
   ]);
   if (!a.error) app.value = a.data;
   if (!r.error) {
@@ -56,6 +56,7 @@ function reset() {
   keyword.value = '';
   search();
 }
+function changePageSize(size: number) { pageSize.value = size; page.value = 1; load(); }
 
 function confirmDeleteRelease(release: AndroidRelease) {
   window.$dialog?.warning({
@@ -141,7 +142,11 @@ onMounted(load);
         class="pager"
         :item-count="total"
         :page-size="pageSize"
+        :prefix="() => `共 ${total} 条`"
+        :page-sizes="[10, 20, 30, 50]"
+        show-size-picker
         @update:page="load"
+        @update:page-size="changePageSize"
       />
     </NCard>
     <NModal v-model:show="showDeleteApp" preset="card" title="删除应用" :style="{ width: '480px' }">

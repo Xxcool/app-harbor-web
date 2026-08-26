@@ -152,19 +152,23 @@ onMounted(load);
     </NCard>
     <NModal v-model:show="visible" preset="card" :title="editing ? '编辑角色' : '新增角色'" class="max-w-520px">
       <NForm label-placement="left" label-width="80" :show-feedback="false">
-        <NFormItem label="角色编码" required>
-          <NInput v-model:value="form.code" :disabled="Boolean(editing)" placeholder="例如 RELEASE_AUDITOR" />
-        </NFormItem>
-        <NFormItem label="角色名称" required><NInput v-model:value="form.name" /></NFormItem>
-        <NFormItem label="说明"><NInput v-model:value="form.description" type="textarea" /></NFormItem>
-        <NFormItem v-if="editing" label="状态">
-          <NRadioGroup v-model:value="form.status">
-            <NSpace>
-              <NRadio value="ENABLED">启用</NRadio>
-              <NRadio value="DISABLED">停用</NRadio>
-            </NSpace>
-          </NRadioGroup>
-        </NFormItem>
+        <NGrid cols="2" :x-gap="24" :y-gap="16">
+          <NFormItemGi label="角色编码" required>
+            <NInput v-model:value="form.code" :disabled="Boolean(editing)" placeholder="例如 RELEASE_AUDITOR" />
+          </NFormItemGi>
+          <NFormItemGi label="角色名称" required><NInput v-model:value="form.name" /></NFormItemGi>
+          <NFormItemGi label="说明" span="2">
+            <NInput v-model:value="form.description" type="textarea" :autosize="{ minRows: 3 }" />
+          </NFormItemGi>
+          <NFormItemGi v-if="editing" label="状态" span="2">
+            <NRadioGroup v-model:value="form.status">
+              <NSpace>
+                <NRadio value="ENABLED">启用</NRadio>
+                <NRadio value="DISABLED">停用</NRadio>
+              </NSpace>
+            </NRadioGroup>
+          </NFormItemGi>
+        </NGrid>
       </NForm>
       <NSpace justify="end">
         <NButton @click="visible = false">取消</NButton>

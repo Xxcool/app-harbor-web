@@ -8,7 +8,7 @@ import { fetchLogs } from '@/service/api';
 const rows = ref<Record<string, any>[]>([]);
 const loading = ref(false);
 const page = ref(1);
-const pageSize = 20;
+const pageSize = ref(20);
 const total = ref(0);
 const query = reactive({ keyword: '', action: null as string | null, resourceType: null as string | null });
 const actionOptions = [
@@ -54,7 +54,7 @@ async function load() {
   loading.value = true;
   const result = await fetchLogs({
     page: page.value,
-    size: pageSize,
+    size: pageSize.value,
     keyword: query.keyword || undefined,
     action: query.action || undefined,
     resourceType: query.resourceType || undefined
@@ -77,6 +77,7 @@ function reset() {
   query.resourceType = null;
   search();
 }
+function changePageSize(size: number) { pageSize.value = size; page.value = 1; load(); }
 
 onMounted(load);
 </script>
@@ -129,7 +130,11 @@ onMounted(load);
         class="pager"
         :item-count="total"
         :page-size="pageSize"
+        :prefix="() => `共 ${total} 条`"
+        :page-sizes="[10, 20, 30, 50]"
+        show-size-picker
         @update:page="load"
+        @update:page-size="changePageSize"
       />
     </NCard>
   </div>

@@ -22,7 +22,7 @@ const saving = ref(false);
 const visible = ref(false);
 const editing = ref<UserRow | null>(null);
 const page = ref(1);
-const pageSize = 20;
+const pageSize = ref(20);
 const total = ref(0);
 const keyword = ref('');
 const form = reactive({
@@ -57,7 +57,7 @@ function openEdit(row: UserRow) {
 async function load() {
   loading.value = true;
   const [users, roleResult] = await Promise.all([
-    fetchUsers({ page: page.value, size: pageSize, keyword: keyword.value || undefined }),
+    fetchUsers({ page: page.value, size: pageSize.value, keyword: keyword.value || undefined }),
     fetchRoles()
   ]);
   if (!users.error) {
@@ -68,6 +68,11 @@ async function load() {
   loading.value = false;
 }
 function search() {
+  page.value = 1;
+  load();
+}
+function changePageSize(size: number) {
+  pageSize.value = size;
   page.value = 1;
   load();
 }
@@ -201,39 +206,45 @@ onMounted(load);
         class="pager"
         :item-count="total"
         :page-size="pageSize"
+        :prefix="() => `共 ${total} 条`"
+        :page-sizes="[10, 20, 30, 50]"
+        show-size-picker
         @update:page="load"
+        @update:page-size="changePageSize"
       />
     </NCard>
     <NModal v-model:show="visible" preset="card" :title="editing ? '编辑用户' : '新增用户'" class="max-w-560px">
       <NForm label-placement="left" label-width="88" :show-feedback="false">
-        <NFormItem label="用户名" required>
-          <NInput v-model:value="form.username" :disabled="Boolean(editing)" />
-        </NFormItem>
-        <NFormItem label="显示名称" required><NInput v-model:value="form.displayName" /></NFormItem>
-        <NFormItem label="邮箱"><NInput v-model:value="form.email" placeholder="可选" /></NFormItem>
-        <NFormItem :label="editing ? '重置密码' : '初始密码'" :required="!editing">
-          <NInput
-            v-model:value="form.password"
-            type="password"
-            show-password-on="click"
-            :placeholder="editing ? '留空则不修改' : '至少 12 位'"
-          />
-        </NFormItem>
-        <NFormItem label="角色">
-          <NSelect
-            v-model:value="form.roleCodes"
-            multiple
-            :options="roles.map(role => ({ label: role.name, value: role.code }))"
-          />
-        </NFormItem>
-        <NFormItem v-if="editing" label="状态">
-          <NRadioGroup v-model:value="form.status">
-            <NSpace>
-              <NRadio value="ENABLED">启用</NRadio>
-              <NRadio value="DISABLED">停用</NRadio>
-            </NSpace>
-          </NRadioGroup>
-        </NFormItem>
+        <NGrid cols="2" :x-gap="24" :y-gap="16">
+          <NFormItemGi label="用户名" required>
+            <NInput v-model:value="form.username" :disabled="Boolean(editing)" />
+          </NFormItemGi>
+          <NFormItemGi label="显示名称" required><NInput v-model:value="form.displayName" /></NFormItemGi>
+          <NFormItemGi label="邮箱"><NInput v-model:value="form.email" placeholder="可选" /></NFormItemGi>
+          <NFormItemGi :label="editing ? '重置密码' : '初始密码'" :required="!editing">
+            <NInput
+              v-model:value="form.password"
+              type="password"
+              show-password-on="click"
+              :placeholder="editing ? '留空则不修改' : '至少 12 位'"
+            />
+          </NFormItemGi>
+          <NFormItemGi label="角色" span="2">
+            <NSelect
+              v-model:value="form.roleCodes"
+              multiple
+              :options="roles.map(role => ({ label: role.name, value: role.code }))"
+            />
+          </NFormItemGi>
+          <NFormItemGi v-if="editing" label="状态" span="2">
+            <NRadioGroup v-model:value="form.status">
+              <NSpace>
+                <NRadio value="ENABLED">启用</NRadio>
+                <NRadio value="DISABLED">停用</NRadio>
+              </NSpace>
+            </NRadioGroup>
+          </NFormItemGi>
+        </NGrid>
       </NForm>
       <NSpace justify="end">
         <NButton @click="visible = false">取消</NButton>
