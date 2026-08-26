@@ -41,10 +41,19 @@ export interface DashboardSummary {
   storageBytes: number;
 }
 export interface SystemMenu {
-  id: string;
-  name: string;
-  path: string;
-  meta: { title: string; i18nKey?: string; icon?: string; hideInMenu?: boolean; order?: number };
+  id: number;
+  parentId: number;
+  menuType: '1' | '2';
+  menuName: string;
+  routeName: string;
+  routePath: string;
+  component: string;
+  order: number;
+  i18nKey: string;
+  icon?: string;
+  iconType: string;
+  status: '0' | '1';
+  hideInMenu: number;
   children?: SystemMenu[];
 }
 export interface ApkUploadMetadata {
@@ -118,6 +127,15 @@ export function fetchRoles() {
 }
 export function fetchSystemMenus() {
   return request<SystemMenu[]>({ url: '/api/system/menus' });
+}
+export function updateSystemMenu(
+  id: number,
+  data: Pick<SystemMenu, 'menuName' | 'icon' | 'order' | 'status' | 'hideInMenu'>
+) {
+  return request<void>({ url: `/api/system/menus/${id}`, method: 'put', data });
+}
+export function deleteSystemMenu(id: number) {
+  return request<void>({ url: `/api/system/menus/${id}`, method: 'delete' });
 }
 export function createRole(data: { code: string; name: string; description?: string }) {
   return request<void>({ url: '/api/system/roles', method: 'post', data });
