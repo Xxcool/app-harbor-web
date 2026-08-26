@@ -122,6 +122,15 @@ export function createUser(data: {
 }) {
   return request<void>({ url: '/api/system/users', method: 'post', data });
 }
+export function updateUser(
+  id: number,
+  data: { displayName: string; email?: string; password?: string; roleCodes: string[]; status: string }
+) {
+  return request<void>({ url: `/api/system/users/${id}`, method: 'put', data });
+}
+export function deleteUser(id: number) {
+  return request<void>({ url: `/api/system/users/${id}`, method: 'delete' });
+}
 export function fetchRoles() {
   return request<Record<string, any>[]>({ url: '/api/system/roles' });
 }
@@ -139,6 +148,12 @@ export function deleteSystemMenu(id: number) {
 }
 export function createRole(data: { code: string; name: string; description?: string }) {
   return request<void>({ url: '/api/system/roles', method: 'post', data });
+}
+export function updateRole(id: number, data: { name: string; description?: string; status: string }) {
+  return request<void>({ url: `/api/system/roles/${id}`, method: 'put', data });
+}
+export function deleteRole(id: number) {
+  return request<void>({ url: `/api/system/roles/${id}`, method: 'delete' });
 }
 export function fetchLogs(params: {
   page?: number;

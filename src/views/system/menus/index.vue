@@ -12,6 +12,7 @@ const loading = ref(false);
 const submitting = ref(false);
 const visible = ref(false);
 const editing = ref<SystemMenu | null>(null);
+const expandedRowKeys = ref<number[]>([]);
 const form = reactive({ menuName: '', icon: '', order: 0, status: '1' as '0' | '1', hideInMenu: 0 });
 
 function openEdit(row: SystemMenu) {
@@ -29,6 +30,15 @@ async function load() {
   const result = await fetchSystemMenus();
   if (!result.error) rows.value = result.data;
   loading.value = false;
+}
+
+function expandAll() {
+  const collect = (menus: SystemMenu[]): number[] => menus.flatMap(menu => [menu.id, ...collect(menu.children || [])]);
+  expandedRowKeys.value = collect(rows.value);
+}
+
+function collapseAll() {
+  expandedRowKeys.value = [];
 }
 
 async function submit() {
@@ -129,18 +139,22 @@ onMounted(load);
   <div class="min-h-500px flex-col-stretch gap-16px overflow-hidden p-16px lt-sm:overflow-auto">
     <NCard title="菜单列表" :bordered="false" size="small" class="sm:flex-1-hidden card-wrapper">
       <template #header-extra>
-        <NButton size="small" :loading="loading" @click="load">
-          <template #icon><icon-mdi-refresh class="text-icon" /></template>
-          刷新
-        </NButton>
+        <NSpace>
+          <NButton size="small" @click="expandAll">展开</NButton>
+          <NButton size="small" @click="collapseAll">收起</NButton>
+          <NButton size="small" :loading="loading" @click="load">
+            <template #icon><icon-mdi-refresh class="text-icon" /></template>
+            刷新
+          </NButton>
+        </NSpace>
       </template>
       <NDataTable
+        v-model:expanded-row-keys="expandedRowKeys"
         size="small"
         :columns="columns"
         :data="rows"
         :loading="loading"
         :row-key="row => row.id"
-        :default-expanded-row-keys="rows.map(row => row.id)"
         :scroll-x="1380"
       />
     </NCard>
