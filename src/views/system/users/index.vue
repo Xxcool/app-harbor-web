@@ -215,7 +215,7 @@ onMounted(load);
     </NCard>
     <NModal v-model:show="visible" preset="card" :title="editing ? '编辑用户' : '新增用户'" class="max-w-560px">
       <NForm label-placement="left" label-width="88" :show-feedback="false">
-        <NGrid cols="2" :x-gap="24" :y-gap="16">
+        <NGrid cols="1" :y-gap="16">
           <NFormItemGi label="用户名" required>
             <NInput v-model:value="form.username" :disabled="Boolean(editing)" />
           </NFormItemGi>
@@ -229,14 +229,14 @@ onMounted(load);
               :placeholder="editing ? '留空则不修改' : '至少 12 位'"
             />
           </NFormItemGi>
-          <NFormItemGi label="角色" span="2">
+          <NFormItemGi label="角色">
             <NSelect
               v-model:value="form.roleCodes"
               multiple
               :options="roles.map(role => ({ label: role.name, value: role.code }))"
             />
           </NFormItemGi>
-          <NFormItemGi v-if="editing" label="状态" span="2">
+          <NFormItemGi v-if="editing" label="状态">
             <NRadioGroup v-model:value="form.status">
               <NSpace>
                 <NRadio value="ENABLED">启用</NRadio>
