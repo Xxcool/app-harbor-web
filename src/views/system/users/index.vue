@@ -246,7 +246,7 @@ onMounted(load);
           </NFormItemGi>
         </NGrid>
       </NForm>
-      <template #action>
+      <template #footer>
         <NSpace justify="end">
           <NButton @click="visible = false">取消</NButton>
           <NButton type="primary" :loading="saving" @click="submit">确认</NButton>
