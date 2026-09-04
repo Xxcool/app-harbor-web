@@ -19,5 +19,8 @@
     "baseUrl": "."
   },
   "oxc.fmt.configPath": ".oxfmtrc.json",
-  "unocss.root": ["./"]
+  "unocss.root": ["./"],
+  "[vue]": {
+    "editor.defaultFormatter": "oxc.oxc-vscode"
+  }
 }

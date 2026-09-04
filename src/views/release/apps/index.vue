@@ -1,11 +1,11 @@
 <!-- 应用分页列表页，按模板标准拆分查询区域与列表区域。 -->
 <script setup lang="tsx">
-import { onMounted, reactive, ref } from 'vue';
-import { NButton, NTag } from 'naive-ui';
-import SearchCard from '@/components/business/search-card.vue';
-import { useRouterPush } from '@/hooks/common/router';
-import { fetchApps } from '@/service/api';
-import type { AndroidApp } from '@/service/api/app-publish';
+import { onMounted, reactive, ref } from "vue";
+import { NButton, NTag } from "naive-ui";
+import SearchCard from "@/components/business/search-card.vue";
+import { useRouterPush } from "@/hooks/common/router";
+import { fetchApps } from "@/service/api";
+import type { AndroidApp } from "@/service/api/app-publish";
 
 const { routerPush } = useRouterPush(false);
 const rows = ref<AndroidApp[]>([]);
@@ -13,9 +13,66 @@ const loading = ref(false);
 const total = ref(0);
 const page = ref(1);
 const pageSize = ref(20);
-const query = reactive({ appName: '', packageName: '', status: null as string | null });
-const statusOptions = [{ label: '运行中', value: 'ENABLED' }, { label: '已停用', value: 'DISABLED' }];
-const columns = [{ title: '应用', key: 'appName', render: (row: AndroidApp) => <div class="app-cell"><div class="app-list-icon">{row.iconUrl ? <img src={row.iconUrl} alt={row.appName} /> : row.appName.slice(0, 1)}</div><div><b>{row.appName}</b><code>{row.packageName}</code></div></div> }, { title: '状态', key: 'status', width: 110, render: (row: AndroidApp) => <NTag type={row.status === 'ENABLED' ? 'success' : 'default'} round>{row.status === 'ENABLED' ? '运行中' : '已停用'}</NTag> }, { title: '最近更新', key: 'updatedAt', width: 180, render: (row: AndroidApp) => new Date(row.updatedAt).toLocaleString() }, { title: '', key: 'action', width: 110, render: (row: AndroidApp) => <NButton text type="primary" onClick={() => routerPush(`/release/apps-detail/${row.id}`)}>版本档案 →</NButton> }];
+const query = reactive({
+  appName: "",
+  packageName: "",
+  status: null as string | null,
+});
+const statusOptions = [
+  { label: "运行中", value: "ENABLED" },
+  { label: "已停用", value: "DISABLED" },
+];
+const columns = [
+  {
+    title: "应用",
+    key: "appName",
+    render: (row: AndroidApp) => (
+      <div class="app-cell">
+        <div class="app-list-icon">
+          {row.iconUrl ? (
+            <img src={row.iconUrl} alt={row.appName} />
+          ) : (
+            row.appName.slice(0, 1)
+          )}
+        </div>
+        <div>
+          <b>{row.appName}</b>
+          <code>{row.packageName}</code>
+        </div>
+      </div>
+    ),
+  },
+  {
+    title: "状态",
+    key: "status",
+    width: 110,
+    render: (row: AndroidApp) => (
+      <NTag type={row.status === "ENABLED" ? "success" : "default"} round>
+        {row.status === "ENABLED" ? "运行中" : "已停用"}
+      </NTag>
+    ),
+  },
+  {
+    title: "最近更新",
+    key: "updatedAt",
+    width: 180,
+    render: (row: AndroidApp) => new Date(row.updatedAt).toLocaleString(),
+  },
+  {
+    title: "",
+    key: "action",
+    width: 110,
+    render: (row: AndroidApp) => (
+      <NButton
+        text
+        type="primary"
+        onClick={() => routerPush(`/release/apps-detail/${row.id}`)}
+      >
+        版本档案 →
+      </NButton>
+    ),
+  },
+];
 async function load() {
   loading.value = true;
   const result = await fetchApps({
@@ -23,7 +80,7 @@ async function load() {
     size: pageSize.value,
     appName: query.appName || undefined,
     packageName: query.packageName || undefined,
-    status: query.status || undefined
+    status: query.status || undefined,
   });
   if (!result.error) {
     rows.value = result.data.records;
@@ -38,8 +95,8 @@ function search() {
 }
 
 function reset() {
-  query.appName = '';
-  query.packageName = '';
+  query.appName = "";
+  query.packageName = "";
   query.status = null;
   search();
 }
@@ -104,20 +161,24 @@ onMounted(load);
   justify-content: flex-end;
   margin-top: 18px;
 }
+
 :deep(.app-cell) {
   display: flex;
   align-items: center;
   gap: 10px;
 }
+
 :deep(.app-cell > div:last-child) {
   display: flex;
   flex-direction: column;
   gap: 3px;
 }
+
 :deep(.app-cell code) {
   color: #849088;
   font-size: 12px;
 }
+
 :deep(.app-list-icon) {
   display: grid;
   width: 40px;
@@ -129,6 +190,7 @@ onMounted(load);
   background: #e9f6cf;
   font-weight: 800;
 }
+
 :deep(.app-list-icon img) {
   width: 100%;
   height: 100%;

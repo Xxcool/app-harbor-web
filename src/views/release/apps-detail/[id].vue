@@ -183,6 +183,7 @@ onMounted(load);
   align-items: center;
   gap: 18px;
 }
+
 .app-icon {
   display: grid;
   width: 68px;
@@ -195,44 +196,54 @@ onMounted(load);
   font-size: 28px;
   font-weight: 800;
 }
+
 .app-icon img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
+
 .app-hero h2 {
   margin: 0 0 5px;
   font-size: 22px;
 }
+
 .app-hero code {
   color: #708077;
 }
+
 .hero-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
 .pager {
   justify-content: flex-end;
   margin-top: 18px;
 }
+
 .confirm-tip {
   margin: 0 0 8px;
   color: #59665e;
 }
+
 :deep(.version-cell) {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 :deep(.version-cell code) {
   color: #859188;
   font-size: 11px;
 }
+
 @media (max-width: 650px) {
   .app-hero {
     grid-template-columns: 60px 1fr;
   }
+
   .hero-actions {
     grid-column: 1/-1;
     flex-wrap: wrap;
